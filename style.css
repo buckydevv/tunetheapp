@@ -1,0 +1,449 @@
+/* Tune! website: the app's own dark neon, on a page. */
+:root {
+  --void: #07060f;
+  --midnight: #0e1030;
+  --deep: #1a0b33;
+  --violet: #7b2ff7;
+  --pink: #ff2e88;
+  --cyan: #22e4ff;
+  --text: #f2ecff;
+  --muted: #a99fcc;
+  --line: color-mix(in oklab, var(--text) 10%, transparent);
+  --display: "Unbounded", "Segoe UI Variable Display", system-ui, sans-serif;
+  --body: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  background: var(--void);
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 700px at 85% -10%, color-mix(in oklab, var(--violet) 26%, transparent), transparent 70%),
+    radial-gradient(900px 600px at -10% 20%, color-mix(in oklab, var(--pink) 14%, transparent), transparent 70%),
+    var(--void);
+  color: var(--text);
+  font: 16px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: inherit;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+.wrap {
+  width: min(1120px, 100% - 32px);
+  margin-inline: auto;
+}
+
+/* ── Top bar ── */
+.top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font: 800 20px var(--display);
+  letter-spacing: -0.02em;
+}
+.brand img {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+.top nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.top nav a:not(.btn) {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.top nav a:not(.btn):hover {
+  color: var(--text);
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pink);
+  color: #10051c;
+  font: 700 15px var(--body);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -12px #000;
+  transition:
+    transform 0.35s var(--ease),
+    box-shadow 0.35s var(--ease);
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -12px #000;
+}
+.btn.small {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--text) 22%, transparent);
+}
+.btn.ghost:hover {
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--text) 50%, transparent);
+}
+.btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 72px 0 40px;
+  text-align: center;
+}
+.hero h1 {
+  margin: 0 auto;
+  max-width: 900px;
+  font: 800 clamp(40px, 7.4vw, 88px) / 1 var(--display);
+  letter-spacing: -0.045em;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--pink);
+  white-space: nowrap;
+}
+.hero p.lede {
+  margin: 26px auto 0;
+  max-width: 560px;
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--muted);
+}
+.cta {
+  margin-top: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.fine {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* The app, floating in its own glow. */
+.shot {
+  position: relative;
+  margin: 56px auto 0;
+  max-width: 1080px;
+}
+.shot::before {
+  content: "";
+  position: absolute;
+  inset: 8% 6% -6%;
+  background: linear-gradient(110deg, var(--pink), var(--violet), var(--cyan));
+  filter: blur(70px);
+  opacity: 0.32;
+  z-index: -1;
+}
+.shot img {
+  width: 100%;
+  border-radius: 16px;
+  box-shadow:
+    0 40px 100px -30px #000,
+    0 0 0 1px var(--line);
+}
+
+/* ── Features ── */
+.features {
+  padding: 110px 0 40px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.feature {
+  grid-column: span 2;
+  padding: 28px;
+  border-radius: 22px;
+  background: color-mix(in oklab, var(--midnight) 60%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.feature.wide {
+  grid-column: span 3;
+}
+.feature .tag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c, var(--pink));
+}
+.feature h3 {
+  margin: 10px 0 8px;
+  font: 700 22px/1.2 var(--display);
+  letter-spacing: -0.02em;
+}
+.feature p {
+  margin: 0;
+  color: var(--muted);
+}
+@media (max-width: 860px) {
+  .features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .feature,
+  .feature.wide {
+    grid-column: auto;
+  }
+}
+
+/* ── Closing band ── */
+.band {
+  margin: 80px 0 0;
+  padding: 64px 24px;
+  border-radius: 28px;
+  text-align: center;
+  background:
+    radial-gradient(80% 140% at 50% 0%, color-mix(in oklab, var(--violet) 40%, transparent), transparent 70%),
+    color-mix(in oklab, var(--midnight) 70%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.band h2 {
+  margin: 0;
+  font: 800 clamp(28px, 4.4vw, 46px) / 1.05 var(--display);
+  letter-spacing: -0.035em;
+}
+
+/* ── Footer ── */
+footer {
+  margin-top: 80px;
+  padding: 28px 0 40px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+footer nav {
+  margin-left: auto;
+  display: flex;
+  gap: 20px;
+}
+footer a {
+  text-decoration: none;
+}
+footer a:hover {
+  color: var(--text);
+}
+
+/* ── Reading pages (privacy) ── */
+.doc {
+  max-width: 720px;
+  margin: 40px auto 0;
+}
+.doc h1 {
+  font: 800 clamp(32px, 5vw, 48px) / 1.05 var(--display);
+  letter-spacing: -0.035em;
+  margin: 0 0 8px;
+}
+.doc h2 {
+  font: 700 20px/1.3 var(--display);
+  letter-spacing: -0.015em;
+  margin: 44px 0 10px;
+}
+.doc p,
+.doc li {
+  color: color-mix(in oklab, var(--text) 82%, var(--muted));
+}
+.doc ul {
+  padding-left: 20px;
+}
+.doc li + li {
+  margin-top: 6px;
+}
+.doc .meta {
+  color: var(--muted);
+  font-size: 14px;
+}
+.doc code {
+  font-size: 0.92em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--text) 8%, transparent);
+}
+
+/* ── Link pages: a party invite or a profile ── */
+.card-page {
+  min-height: calc(100vh - 180px);
+  display: grid;
+  place-items: center;
+  padding: 24px 0 60px;
+}
+.card {
+  width: min(440px, 100%);
+  overflow: hidden;
+  border-radius: 26px;
+  background: color-mix(in oklab, var(--midnight) 80%, transparent);
+  box-shadow:
+    0 40px 100px -40px #000,
+    inset 0 0 0 1px var(--line);
+  text-align: center;
+  animation: rise 0.7s var(--ease) both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+.card .banner {
+  height: 130px;
+  background: linear-gradient(120deg, var(--accent, var(--pink)), var(--violet));
+  background-size: cover;
+  background-position: center;
+}
+.card .body {
+  padding: 0 28px 30px;
+}
+.card .avatar {
+  width: 104px;
+  height: 104px;
+  margin: -52px auto 0;
+  border-radius: 50%;
+  border: 5px solid var(--midnight);
+  background: linear-gradient(135deg, var(--accent, var(--pink)), var(--violet));
+  display: grid;
+  place-items: center;
+  font: 800 38px var(--display);
+  color: #10051c;
+  overflow: hidden;
+  position: relative;
+}
+.card .avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card .no-banner {
+  padding-top: 34px;
+}
+.card .no-banner .avatar {
+  margin-top: 0;
+}
+.card h1 {
+  margin: 14px 0 0;
+  font: 800 26px/1.15 var(--display);
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+.card .handle {
+  color: var(--muted);
+  font-weight: 600;
+}
+.card .bio {
+  margin: 12px 0 0;
+}
+.card .stats {
+  margin: 18px 0 0;
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.card .stats b {
+  display: block;
+  color: var(--text);
+  font: 700 19px var(--display);
+}
+.card .code {
+  margin: 18px 0 4px;
+  font: 800 44px var(--display);
+  letter-spacing: 0.14em;
+  color: var(--text);
+}
+.card .actions {
+  margin-top: 24px;
+  display: grid;
+  gap: 10px;
+}
+.card .hint {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.pill-tag {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: color-mix(in oklab, var(--pink) 18%, transparent);
+  color: color-mix(in oklab, var(--pink) 60%, var(--text));
+}
+.pill-tag.off {
+  background: color-mix(in oklab, var(--text) 10%, transparent);
+  color: var(--muted);
+}
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 40px auto;
+  border-radius: 50%;
+  border: 3px solid color-mix(in oklab, var(--text) 15%, transparent);
+  border-top-color: var(--pink);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media (max-width: 560px) {
+  .top nav a.hide-sm {
+    display: none;
+  }
+  .hero {
+    padding-top: 40px;
+  }
+}

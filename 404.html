@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tune!</title>
+    <meta property="og:title" content="Tune!" />
+    <meta property="og:description" content="Listen along on Tune!, a free music player for Windows." />
+    <meta property="og:image" content="https://tunetheapp.co.uk/img/icon.png" />
+    <meta name="theme-color" content="#ff2e88" />
+    <link rel="icon" href="/img/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="/"><img src="/img/icon.png" alt="" />Tune!</a>
+        <nav>
+          <a class="hide-sm" href="/#features">Features</a>
+          <a class="btn small" href="/">Get Tune!</a>
+        </nav>
+      </header>
+
+      <main class="card-page">
+        <div id="out"><div class="spinner" aria-label="Loading"></div></div>
+      </main>
+    </div>
+
+    <script>
+      // GitHub Pages has no routing, so every unknown path lands here. Two of them are real:
+      //   /join/ABC123   a Listening Party invite
+      //   /u/handle      someone's profile
+      const SUPABASE = "https://dhawbwlaiypaddpnjaav.supabase.co";
+      const KEY = "sb_publishable_j261GWZGiPVW8MXbR-1nXQ_Q0VWXuym"; // the public key; reads only what's meant to be public
+      const out = document.getElementById("out");
+      const path = decodeURIComponent(location.pathname).replace(/\/+$/, "");
+
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const pic = (p) => (p ? `${SUPABASE}/storage/v1/object/public/avatars/${p.split("/").map(encodeURIComponent).join("/")}` : null);
+      const initial = (s) => esc((s || "?").trim().charAt(0).toUpperCase());
+      async function rpc(name, body) {
+        const r = await fetch(`${SUPABASE}/rest/v1/rpc/${name}`, {
+          method: "POST",
+          headers: { apikey: KEY, "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!r.ok) throw new Error(r.status);
+        return (await r.json())[0] ?? null;
+      }
+      /** Tries tune:// and, if Tune! isn't installed (the page is still showing), says so. */
+      function openInApp(link) {
+        location.href = link;
+        setTimeout(() => {
+          if (document.hasFocus()) document.getElementById("hint").textContent = "Nothing happened? Download Tune! first, then try the button again.";
+        }, 1600);
+      }
+      function show(html, title) {
+        out.innerHTML = html;
+        if (title) document.title = `${title} · Tune!`;
+      }
+      function notFound(what) {
+        show(
+          `<div class="card"><div class="body no-banner">
+             <h1>${what}</h1>
+             <p class="bio">Check the link and try again.</p>
+             <div class="actions"><a class="btn" href="/">Go to Tune!</a></div>
+           </div></div>`,
+          "Not found",
+        );
+      }
+
+      async function party(code) {
+        const p = await rpc("party_preview", { invite: code }).catch(() => null);
+        if (!p) return notFound("That party doesn't exist");
+        const host = p.host_name || "@" + p.host_handle;
+        const av = pic(p.host_avatar);
+        show(
+          `<div class="card"><div class="body no-banner">
+             <div class="avatar">${av ? `<img src="${av}" alt="">` : initial(host)}</div>
+             <span class="pill-tag ${p.open ? "" : "off"}">${p.open ? "Listening Party" : "This party has ended"}</span>
+             <h1>${esc(host)} invited you</h1>
+             <p class="handle">@${esc(p.host_handle)}${p.open ? ` · ${p.members} listening` : ""}</p>
+             <div class="code" aria-label="Party code">${esc(p.code)}</div>
+             <div class="actions">
+               ${p.open ? `<button class="btn" id="go">Join in Tune!</button>` : ""}
+               <a class="btn ghost" href="/">Download Tune!</a>
+             </div>
+             <p class="hint" id="hint">${p.open ? "Or open Tune!, go to Party and type the code." : "Ask them to start a new one."}</p>
+           </div></div>`,
+          `Join ${host}'s party`,
+        );
+        document.getElementById("go")?.addEventListener("click", () => openInApp(`tune://join/${p.code}`));
+      }
+
+      async function profile(handle) {
+        const u = await rpc("public_profile", { h: handle }).catch(() => null);
+        if (!u) return notFound("No one has that username");
+        const name = u.display_name || "@" + u.handle;
+        const av = pic(u.avatar_path);
+        const banner = pic(u.banner_path);
+        const hours = u.minutes ? Math.round(u.minutes / 60) : 0;
+        document.documentElement.style.setProperty("--accent", u.accent || "#ff2e88");
+        show(
+          `<div class="card">
+             ${banner ? `<div class="banner" style="background-image:url('${banner}')"></div>` : `<div class="banner"></div>`}
+             <div class="body">
+               <div class="avatar">${av ? `<img src="${av}" alt="">` : initial(name)}</div>
+               <h1>${esc(name)}</h1>
+               <p class="handle">@${esc(u.handle)}</p>
+               ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
+               <div class="stats">
+                 <span><b>${u.followers}</b>followers</span>
+                 <span><b>${u.following}</b>following</span>
+                 ${hours ? `<span><b>${hours}</b>hours this year</span>` : ""}
+               </div>
+               ${u.top_artist ? `<p class="hint">Top artist this year: <strong>${esc(u.top_artist)}</strong></p>` : ""}
+               <div class="actions">
+                 <button class="btn" id="go">Open in Tune!</button>
+                 <a class="btn ghost" href="/">Download Tune!</a>
+               </div>
+               <p class="hint" id="hint"></p>
+             </div>
+           </div>`,
+          `${name} (@${u.handle})`,
+        );
+        document.getElementById("go").addEventListener("click", () => openInApp(`tune://u/${u.handle}`));
+      }
+
+      let m;
+      if ((m = path.match(/^\/join\/([A-Za-z0-9]{6})$/))) party(m[1].toUpperCase());
+      else if ((m = path.match(/^\/u\/([A-Za-z0-9._]{3,20})$/))) profile(m[1].toLowerCase());
+      else notFound("This page doesn't exist");
+    </script>
+  </body>
+</html>

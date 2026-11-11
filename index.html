@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tune! · your music, in sync</title>
+    <meta name="description" content="Tune! is a free music player for Windows: your own music with timed lyrics, Lucid mode and Listening Parties where friends hear the same song at the same moment." />
+    <meta property="og:title" content="Tune! · your music, in sync" />
+    <meta property="og:description" content="A free music player for Windows with timed lyrics, Lucid mode and Listening Parties." />
+    <meta property="og:image" content="https://tunetheapp.co.uk/img/app.jpg" />
+    <meta property="og:url" content="https://tunetheapp.co.uk/" />
+    <meta name="theme-color" content="#ff2e88" />
+    <link rel="icon" href="/img/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="/"><img src="/img/icon.png" alt="" />Tune!</a>
+        <nav>
+          <a class="hide-sm" href="#features">Features</a>
+          <a class="hide-sm" href="/privacy">Privacy</a>
+          <a class="btn small download" href="https://github.com/buckydevv/tunetheapp/releases/latest">Download</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <h1>Your music, <em>in sync</em> with your friends.</h1>
+          <p class="lede">
+            Tune! plays the music on your PC with lyrics that keep time, a full-screen Lucid mode, and Listening Parties where
+            up to four friends hear the same song at the same moment.
+          </p>
+          <div class="cta">
+            <a class="btn download" href="https://github.com/buckydevv/tunetheapp/releases/latest">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3zm0 13 7.5 1.1v-7H3zm8.4 1.2L21 21v-8.4h-9.6zm0-15.4v7.2H21V3z" /></svg>
+              Download for Windows
+            </a>
+            <a class="btn ghost" href="#features">See what it does</a>
+          </div>
+          <p class="fine" id="version">Free · Windows 10 and 11</p>
+
+          <div class="shot">
+            <img src="/img/app.jpg" width="1568" height="698" alt="Tune! showing the home screen: a daily mix, today's listening recap and the song that's playing." />
+          </div>
+        </section>
+
+        <section class="features" id="features" aria-label="Features">
+          <article class="feature wide" style="--c: var(--pink)">
+            <span class="tag">Listening Parties</span>
+            <h3>Same song, same second</h3>
+            <p>Start a party, share the six-letter code, and up to four friends listen along. Songs they don't have are sent to them for the party and removed after.</p>
+          </article>
+          <article class="feature wide" style="--c: var(--cyan)">
+            <span class="tag">Lyrics</span>
+            <h3>Lyrics that keep time</h3>
+            <p>Timed lyrics are found for you, word by word where they exist. If a song has none, time them yourself in a few taps.</p>
+          </article>
+          <article class="feature" style="--c: var(--violet)">
+            <span class="tag">Lucid mode</span>
+            <h3>Full screen, full colour</h3>
+            <p>Lyrics and visuals that move with the music and take their colours from the cover.</p>
+          </article>
+          <article class="feature" style="--c: #b8ff3c">
+            <span class="tag">Tools</span>
+            <h3>Key, BPM and tags</h3>
+            <p>Find any song's key and tempo, fix titles and covers, and clean up duplicates.</p>
+          </article>
+          <article class="feature" style="--c: #ffd23f">
+            <span class="tag">Profiles</span>
+            <h3>Show what you play</h3>
+            <p>A profile with your top artist, what's on repeat and your streak. Follow your friends.</p>
+          </article>
+        </section>
+
+        <section class="band">
+          <h2>Bring your music. We'll keep the beat.</h2>
+          <div class="cta">
+            <a class="btn download" href="https://github.com/buckydevv/tunetheapp/releases/latest">Download Tune!</a>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <span>© <span id="year">2026</span> Tune!</span>
+        <nav>
+          <a href="/privacy">Privacy</a>
+          <a href="mailto:hello@tunetheapp.co.uk">Contact</a>
+        </nav>
+      </footer>
+    </div>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      // Point the download buttons straight at the newest installer.
+      fetch("https://api.github.com/repos/buckydevv/tunetheapp/releases/latest")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((rel) => {
+          const exe = rel?.assets?.find((a) => /setup\.exe$/i.test(a.name)) ?? rel?.assets?.find((a) => /\.exe$/i.test(a.name));
+          if (!exe) return;
+          document.querySelectorAll("a.download").forEach((a) => (a.href = exe.browser_download_url));
+          document.getElementById("version").textContent = `Free · Windows 10 and 11 · version ${rel.tag_name.replace(/^v/, "")}`;
+        })
+        .catch(() => {});
+    </script>
+  </body>
+</html>
