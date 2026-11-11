@@ -48,7 +48,7 @@ export function friendly(e) {
   if (m.includes("user already registered")) return "There's already an account with that email. Sign in instead.";
   if (m.includes("password should be at least")) return "Use a password of at least 8 characters.";
   if (m.includes("email rate limit")) return "Tune! has sent too many emails this hour. Try again later.";
-  if (m.includes("once every 24 hours")) return "You can change your username once every 24 hours.";
+  if (m.includes("once every 24 hours") || m.includes("once a week")) return "You can change your username once a week.";
   if (m.includes("rate limit") || m.includes("too many")) return "Too many tries. Wait a minute and try again.";
   if (m.includes("captcha")) return 'The "are you a person?" check didn\'t go through. Wait for it to tick, then try again.';
   if (m.includes("profiles_handle_key") || m.includes("duplicate key")) return "Someone just took that username. Try another.";
