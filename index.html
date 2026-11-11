@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tune! · your music, in sync</title>
-    <meta name="description" content="Tune! is a free music player for Windows: your own music with timed lyrics, Lucid mode and Listening Parties where friends hear the same song at the same moment." />
-    <meta property="og:title" content="Tune! · your music, in sync" />
-    <meta property="og:description" content="A free music player for Windows with timed lyrics, Lucid mode and Listening Parties." />
-    <meta property="og:image" content="https://tunetheapp.co.uk/img/app.jpg?v=2" />
+    <title>Tune! · your files, finally famous</title>
+    <meta name="description" content="Tune! is a free music player for Windows that makes your own music files feel brand new: word-by-word lyrics, a full-screen audio visualiser, and Listening Parties with friends." />
+    <meta property="og:title" content="Tune! · your files, finally famous" />
+    <meta property="og:description" content="A free music player for your own music files: word-by-word lyrics, an audio visualiser and Listening Parties." />
+    <meta property="og:image" content="https://tunetheapp.co.uk/img/app.jpg?v=3" />
     <meta property="og:url" content="https://tunetheapp.co.uk/" />
     <meta name="theme-color" content="#ff2e88" />
     <link rel="icon" href="/img/favicon.png" />
@@ -22,14 +22,15 @@
         <a class="brand" href="/"><img src="/img/icon.png" alt="" />Tune!</a>
         <nav>
           <a class="hide-sm" href="#features">Features</a>
-          <a class="hide-sm" href="/privacy">Privacy</a>
+          <a class="hide-sm" href="/people">Find people</a>
+          <span data-account></span>
           <a class="btn small download" href="https://github.com/buckydevv/tunetheapp/releases/latest">Download</a>
         </nav>
       </header>
 
       <main>
         <section class="hero">
-          <h1>Your music, <em>in sync</em> with your friends.</h1>
+          <h1>Your files, <em>finally famous.</em></h1>
           <p class="lede">
             Tune! Music on your PC with no limits. Listen with your friends, full-screen mode, different lyrics visuals, and much more.
           </p>
@@ -43,37 +44,110 @@
           <p class="fine" id="version">Free · Windows 10 and 11</p>
 
           <div class="shot">
-            <img src="/img/app.jpg?v=2" width="1280" height="800" alt="Tune! on the Listening Party page, with a song playing." />
+            <img src="/img/app.jpg?v=3" width="1266" height="793" alt="Tune! open on the Listening Party page, ready to start a party or join one with a code." />
           </div>
         </section>
 
         <section class="features" id="features" aria-labelledby="features-title">
-          <h2 class="sr-only" id="features-title">What Tune! does</h2>
-          <article class="feature wide" style="--c: var(--pink)">
-            <span class="tag">Listening Parties</span>
-            <h3>Same song, same second</h3>
-            <p>Start a party, share the six-letter code, and up to four friends listen along. Songs they don't have are sent to them for the party and removed after.</p>
+          <h2 id="features-title">Everything your music folder was missing.</h2>
+
+          <!-- Listening Parties -->
+          <article class="row">
+            <div class="copy">
+              <h3>Same song. <span style="--c: var(--pink)">Same second.</span></h3>
+              <p>Start a Listening Party, send the six-letter code, and up to three friends hear exactly what you hear, down to the beat. They don't need your songs: Tune! shares them for the party and cleans up after.</p>
+              <ul class="ticks">
+                <li>Chat and reactions while you listen</li>
+                <li>Guests can suggest the next song</li>
+                <li>A Join button right on your Discord status</li>
+              </ul>
+            </div>
+            <div class="vis party-vis" aria-hidden="true">
+              <div class="party-card">
+                <span class="live"><i></i>Live · 4 listening</span>
+                <div class="code"><b>T</b><b>U</b><b>N</b><b>E</b><b>4</b><b>U</b></div>
+                <div class="faces">
+                  <span style="--a: #ff2e88">S</span><span style="--a: #22e4ff">M</span><span style="--a: #b8ff3c">J</span><span style="--a: #ffd23f">A</span>
+                </div>
+                <div class="sync">
+                  <span>You</span><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                  <span>Friends</span><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+              </div>
+              <span class="bubble b1">this drop!!</span>
+              <span class="bubble b2">play it again</span>
+            </div>
           </article>
-          <article class="feature wide" style="--c: var(--cyan)">
-            <span class="tag">Lyrics</span>
-            <h3>Lyrics that keep time</h3>
-            <p>Timed lyrics are found for you, word by word where they exist. If a song has none, time them yourself in a few taps.</p>
+
+          <!-- Lyrics -->
+          <article class="row flip">
+            <div class="copy">
+              <h3>Lyrics that <span style="--c: var(--cyan)">hit every word.</span></h3>
+              <p>Tune! finds timed lyrics for your songs and lights them up word by word as they're sung. Pick from several sources per song, or time a song yourself in a few taps.</p>
+              <ul class="ticks">
+                <li>Found automatically, even for old files</li>
+                <li>Switch sources and edit them in Tools</li>
+              </ul>
+            </div>
+            <div class="vis lyric-vis" aria-hidden="true">
+              <p class="l past">Headlights on the empty road</p>
+              <p class="l now"><span>Every</span> <span>word</span> <span>lands</span> <span>right</span> <span>on</span> <span>time</span></p>
+              <p class="l next">Turn it up and sing it back</p>
+              <p class="l next2">We don't need the radio</p>
+            </div>
           </article>
-          <article class="feature" style="--c: var(--violet)">
-            <span class="tag">Lucid mode</span>
-            <h3>Full screen, full colour</h3>
-            <p>Lyrics and visuals that move with the music and take their colours from the cover.</p>
-          </article>
-          <article class="feature" style="--c: #b8ff3c">
-            <span class="tag">Tools</span>
-            <h3>Key, BPM and tags</h3>
-            <p>Find any song's key and tempo, fix titles and covers, and clean up duplicates.</p>
-          </article>
-          <article class="feature" style="--c: #ffd23f">
-            <span class="tag">Profiles</span>
-            <h3>Show what you play</h3>
-            <p>A profile with your top artist, what's on repeat and your streak. Follow your friends.</p>
-          </article>
+
+          <!-- Everything else -->
+          <div class="bento">
+            <article class="tile lucid">
+              <div class="lucid-bg" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="tile-copy">
+                <h3>Audio visualiser</h3>
+                <p>Full screen. Lyrics as big as the room, in colours pulled from the cover. Five styles, from a floating 3D cover to a cut-out newspaper.</p>
+              </div>
+              <p class="lucid-line" aria-hidden="true">sing it<br />back</p>
+            </article>
+
+            <article class="tile keys">
+              <h3>Key &amp; BPM finder</h3>
+              <p>Drop in any song to find its key and tempo, checked against what the file says.</p>
+              <div class="chips" aria-hidden="true">
+                <span class="chip"><b>F minor</b> 4A</span>
+                <span class="chip"><b>140</b> BPM</span>
+                <span class="chip ok"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7" /></svg> File agrees</span>
+              </div>
+            </article>
+
+            <article class="tile mini">
+              <h3>Mini player</h3>
+              <p>A tiny always-on-top player with the current lyric, so you never lose your place.</p>
+              <div class="mini-vis" aria-hidden="true">
+                <span class="art"></span>
+                <span class="mini-text"><b>Your song</b><small>and the line being sung</small></span>
+                <span class="mini-btns"><i></i><i class="play"></i><i></i></span>
+              </div>
+            </article>
+
+            <article class="tile recap">
+              <h3>Recap, every day</h3>
+              <p>Your top songs and artists by day, week, month and year, as a card you can share.</p>
+              <div class="bars" aria-hidden="true"><i style="--h: 30%"></i><i style="--h: 55%"></i><i style="--h: 42%"></i><i style="--h: 90%"></i><i style="--h: 70%"></i><i style="--h: 100%"></i><i style="--h: 48%"></i></div>
+            </article>
+
+            <article class="tile friends">
+              <ul class="activity" aria-hidden="true">
+                <li><span class="av" style="--s: 38px; --a: #22e4ff">M</span><span><b>Maya</b><small>listening now</small></span><span class="eq"><i></i><i></i><i></i></span><span class="pill">Join</span></li>
+                <li><span class="av" style="--s: 38px; --a: #ffd23f">J</span><span><b>Jay</b><small>hosting a party · 3 in</small></span><span class="eq"><i></i><i></i><i></i></span><span class="pill hot">Join</span></li>
+              </ul>
+              <h3>Friends &amp; profiles</h3>
+              <p>Follow friends, see what they're playing and jump into their party. <a href="/people">Find people</a></p>
+            </article>
+          </div>
+
+          <div class="formats">
+            <p><strong>Plays what you've got.</strong> MP3, FLAC, WAV, M4A, AAC, OGG, Opus and AIFF.</p>
+            <p><strong>No subscription. No ads.</strong> Your music stays on your PC.</p>
+          </div>
         </section>
 
         <section class="band">
@@ -87,6 +161,7 @@
       <footer>
         <span>© <span id="year">2026</span> Tune!</span>
         <nav>
+          <a href="/people">Find people</a>
           <a href="/privacy">Privacy</a>
           <a href="mailto:hello@tunetheapp.co.uk">Contact</a>
         </nav>
@@ -106,5 +181,6 @@
         })
         .catch(() => {});
     </script>
+    <script type="module" src="/js/tune.js"></script>
   </body>
 </html>

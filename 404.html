@@ -20,6 +20,7 @@
         <a class="brand" href="/"><img src="/img/icon.png" alt="" />Tune!</a>
         <nav>
           <a class="hide-sm" href="/#features">Features</a>
+          <span data-account></span>
           <a class="btn small" href="/">Get Tune!</a>
         </nav>
       </header>
@@ -114,12 +115,13 @@
                <p class="handle">@${esc(u.handle)}</p>
                ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
                <div class="stats">
-                 <span><b>${u.followers}</b>followers</span>
+                 <span><b id="followers">${u.followers}</b>followers</span>
                  <span><b>${u.following}</b>following</span>
                  ${hours ? `<span><b>${hours}</b>hours this year</span>` : ""}
                </div>
                ${u.top_artist ? `<p class="hint">Top artist this year: <strong>${esc(u.top_artist)}</strong></p>` : ""}
                <div class="actions">
+                 <span id="follow-slot" hidden></span>
                  <button class="btn" id="go">Open in Tune!</button>
                  <a class="btn ghost" href="/">Download Tune!</a>
                </div>
@@ -129,13 +131,64 @@
           `${name} (@${u.handle})`,
         );
         document.getElementById("go").addEventListener("click", () => openInApp(`tune://u/${u.handle}`));
-        openInApp(`tune://u/${u.handle}`);
+        // Signed in on the website: the module below adds a Follow button.
+        window.tuneProfile = { handle: u.handle, followers: u.followers };
+        dispatchEvent(new Event("tune:profile"));
+        // Straight into the app, unless you came here from the website itself (searching people).
+        if (!document.referrer.startsWith(location.origin)) openInApp(`tune://u/${u.handle}`);
       }
 
       let m;
       if ((m = path.match(/^\/join\/([A-Za-z0-9]{6})$/))) party(m[1].toUpperCase());
       else if ((m = path.match(/^\/u\/([A-Za-z0-9._]{3,20})$/))) profile(m[1].toLowerCase());
       else notFound("This page doesn't exist");
+    </script>
+    <script type="module">
+      import { api, whoami, href } from "/js/tune.js";
+
+      // Follow and unfollow from a profile page, when you're signed in on the website.
+      async function addFollow() {
+        const shown = window.tuneProfile;
+        const slot = document.getElementById("follow-slot");
+        if (!shown || !slot) return;
+        const me = await whoami();
+        if (!me?.profile) return;
+        if (me.profile.handle === shown.handle) {
+          slot.outerHTML = `<a class="btn ghost" href="${href("/account")}">Edit your profile</a>`;
+          return;
+        }
+        const them = await api.byHandle(shown.handle).catch(() => null);
+        if (!them) return;
+        let on = await api.isFollowing(me.user.id, them.id).catch(() => false);
+        let count = shown.followers;
+        slot.outerHTML = `<button class="btn" id="follow" aria-pressed="false"></button>`;
+        const btn = document.getElementById("follow");
+        const draw = () => {
+          btn.textContent = on ? "Following" : "Follow";
+          btn.classList.toggle("ghost", on);
+          btn.setAttribute("aria-pressed", String(on));
+          document.getElementById("followers").textContent = count;
+        };
+        // Following is the main thing here; opening the app becomes the second choice.
+        document.getElementById("go")?.classList.add("ghost");
+        draw();
+        btn.addEventListener("click", async () => {
+          const was = on;
+          on = !on;
+          count += on ? 1 : -1;
+          draw();
+          try {
+            await (was ? api.unfollow(me.user.id, them.id) : api.follow(me.user.id, them.id));
+          } catch (x) {
+            on = was;
+            count += was ? 1 : -1;
+            draw();
+            document.getElementById("hint").textContent = x.message;
+          }
+        });
+      }
+      if (window.tuneProfile) addFollow();
+      else addEventListener("tune:profile", addFollow, { once: true });
     </script>
   </body>
 </html>

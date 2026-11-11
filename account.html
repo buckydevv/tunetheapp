@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Your account · Tune!</title>
+    <meta name="theme-color" content="#ff2e88" />
+    <link rel="icon" href="/img/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="/"><img src="/img/icon.png" alt="" />Tune!</a>
+        <nav>
+          <a class="hide-sm" href="/#features">Features</a>
+          <a class="hide-sm" href="/people">Find people</a>
+          <span data-account></span>
+        </nav>
+      </header>
+
+      <main id="out" class="acct" aria-live="polite">
+        <div class="spinner" aria-label="Loading"></div>
+      </main>
+
+      <footer>
+        <span>© 2026 Tune!</span>
+        <nav>
+          <a href="/privacy">Privacy</a>
+          <a href="mailto:hello@tunetheapp.co.uk">Contact</a>
+        </nav>
+      </footer>
+    </div>
+
+    <script type="module">
+      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js";
+
+      const out = $("#out");
+      const COLOURS = ["#ff2e88", "#ff4d4d", "#ff8a3d", "#ffd23f", "#9dff3c", "#3dffa8", "#3fe3ff", "#3a64ff", "#a46bff", "#ff6ad5"];
+
+      // ── The "are you a person?" check ──
+      let captcha = { id: null, token: null };
+      function mountCaptcha(el) {
+        captcha = { id: null, token: null };
+        const go = () =>
+          (captcha.id = turnstile.render(el, {
+            sitekey: CAPTCHA_KEY,
+            theme: "dark",
+            size: "flexible",
+            callback: (t) => (captcha.token = t),
+            "expired-callback": () => (captcha.token = null),
+          }));
+        if (window.turnstile) go();
+        else {
+          const t = setInterval(() => window.turnstile && (clearInterval(t), go()), 100);
+        }
+      }
+      /** A fresh token after each try (they only work once). */
+      function resetCaptcha() {
+        captcha.token = null;
+        if (window.turnstile && captcha.id != null) turnstile.reset(captcha.id);
+      }
+
+      /** Runs a form's action with its button busy and its error shown. */
+      function wire(form, run) {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = form.querySelector("[type=submit]");
+          const err = form.querySelector(".error");
+          const label = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = btn.dataset.busy || "One moment…";
+          err.textContent = "";
+          try {
+            await run(new FormData(form));
+          } catch (x) {
+            err.textContent = x.message;
+            resetCaptcha();
+          } finally {
+            if (btn.isConnected) {
+              btn.disabled = false;
+              btn.textContent = label;
+            }
+          }
+        });
+      }
+
+      // ── Signed out: sign in, create an account, confirm, reset ──
+
+      function signedOut(mode = "in", email = "") {
+        const signup = mode === "up";
+        out.innerHTML = `
+          <section class="auth">
+            <h1>${signup ? "Make your Tune! account" : "Sign in to Tune!"}</h1>
+            <p class="sub">${signup ? "The same account works in the app: profile, followers and Listening Parties." : "Use the same email and password as in the app."}</p>
+            <div class="seg" role="tablist" aria-label="Sign in or create an account">
+              <button role="tab" aria-selected="${!signup}" data-mode="in">Sign in</button>
+              <button role="tab" aria-selected="${signup}" data-mode="up">Create account</button>
+            </div>
+            <form class="form" novalidate>
+              <label class="field"><span>Email</span>
+                <input name="email" type="email" autocomplete="email" required value="${esc(email)}" />
+              </label>
+              <label class="field"><span>Password</span>
+                <input name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required minlength="${signup ? 8 : 1}" />
+                ${signup ? `<small>At least 8 characters.</small>` : ""}
+              </label>
+              <div class="captcha-box"></div>
+              <p class="error" role="alert"></p>
+              <button class="btn wide" type="submit" data-busy="${signup ? "Making it…" : "Signing in…"}">${signup ? "Create account" : "Sign in"}</button>
+              ${signup ? "" : `<button class="link" type="button" data-forgot>Forgot your password?</button>`}
+            </form>
+          </section>`;
+        out.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => signedOut(b.dataset.mode, $("[name=email]", out).value)));
+        $("[data-forgot]", out)?.addEventListener("click", () => forgot($("[name=email]", out).value));
+        mountCaptcha($(".captcha-box", out));
+        wire($("form", out), async (f) => {
+          const email = f.get("email").trim();
+          const password = f.get("password");
+          if (!email.includes("@")) throw new Error("Type your email address.");
+          if (signup && password.length < 8) throw new Error("Use a password of at least 8 characters.");
+          if (!password) throw new Error("Type your password.");
+          if (signup) {
+            const needsCode = await api.signUp(email, password, captcha.token);
+            if (needsCode) return confirmCode(email);
+            return (location.href = href("/account"));
+          }
+          const r = await api.signIn(email, password, captcha.token);
+          if (r === "confirm") return confirmCode(email);
+          location.href = href("/account");
+        });
+      }
+
+      function confirmCode(email) {
+        out.innerHTML = `
+          <section class="auth">
+            <h1>Check your email</h1>
+            <p class="sub">We sent a 6-digit code to <strong>${esc(email)}</strong>. Type it here to finish.</p>
+            <form class="form" novalidate>
+              <label class="field"><span>Code</span>
+                <input name="code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required />
+              </label>
+              <p class="error" role="alert"></p>
+              <button class="btn wide" type="submit" data-busy="Checking…">Confirm</button>
+              <button class="link" type="button" data-resend>Send a new code</button>
+            </form>
+          </section>`;
+        $("[name=code]", out).focus();
+        wire($("form", out), async (f) => {
+          await api.confirm(email, f.get("code"));
+          location.href = href("/account");
+        });
+        $("[data-resend]", out).addEventListener("click", async (e) => {
+          e.target.textContent = "Sending…";
+          try {
+            await api.resend(email, null);
+            e.target.textContent = "Sent. Check your inbox";
+          } catch (x) {
+            $(".error", out).textContent = x.message;
+            e.target.textContent = "Send a new code";
+          }
+        });
+      }
+
+      function forgot(email = "") {
+        out.innerHTML = `
+          <section class="auth">
+            <h1>Reset your password</h1>
+            <p class="sub">We'll email you a code to set a new one.</p>
+            <form class="form" novalidate>
+              <label class="field"><span>Email</span>
+                <input name="email" type="email" autocomplete="email" required value="${esc(email)}" />
+              </label>
+              <div class="captcha-box"></div>
+              <p class="error" role="alert"></p>
+              <button class="btn wide" type="submit" data-busy="Sending…">Send the code</button>
+              <button class="link" type="button" data-back>Back to sign in</button>
+            </form>
+          </section>`;
+        $("[data-back]", out).addEventListener("click", () => signedOut("in", $("[name=email]", out).value));
+        mountCaptcha($(".captcha-box", out));
+        wire($("form", out), async (f) => {
+          const em = f.get("email").trim();
+          if (!em.includes("@")) throw new Error("Type your email address.");
+          await api.sendReset(em, captcha.token);
+          newPassword(em);
+        });
+      }
+
+      function newPassword(email) {
+        out.innerHTML = `
+          <section class="auth">
+            <h1>Set a new password</h1>
+            <p class="sub">Type the code we sent to <strong>${esc(email)}</strong>, then your new password.</p>
+            <form class="form" novalidate>
+              <label class="field"><span>Code</span>
+                <input name="code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required />
+              </label>
+              <label class="field"><span>New password</span>
+                <input name="password" type="password" autocomplete="new-password" minlength="8" required />
+                <small>At least 8 characters.</small>
+              </label>
+              <p class="error" role="alert"></p>
+              <button class="btn wide" type="submit" data-busy="Saving…">Save and sign in</button>
+            </form>
+          </section>`;
+        $("[name=code]", out).focus();
+        wire($("form", out), async (f) => {
+          if (f.get("password").length < 8) throw new Error("Use a password of at least 8 characters.");
+          await api.resetWithCode(email, f.get("code"), f.get("password"));
+          location.href = href("/account");
+        });
+      }
+
+      // ── Signed in: profile, sign out, delete ──
+
+      function signedIn(me) {
+        const first = !me.profile;
+        const p = me.profile ?? { handle: "", display_name: "", bio: "", avatar_path: null, accent: null };
+        let draft = { ...p };
+        let picture = null; // a new picture, not uploaded yet
+        let handleOk = true;
+
+        out.innerHTML = `
+          <div class="acct-head">
+            <h1>${first ? "Finish your profile" : "Your account"}</h1>
+            <p class="sub">${first ? "Pick a username so friends can find you." : "Changes show in the app and on your profile page."}</p>
+          </div>
+          <div class="acct-grid">
+            <aside class="preview-col">
+              <div class="card preview"></div>
+              ${p.handle ? `<a class="btn ghost wide" href="${href(`/u/${esc(p.handle)}`)}">See your profile page</a>` : ""}
+            </aside>
+            <div class="panels">
+              <form class="panel form" id="profile" novalidate>
+                <h2>Profile</h2>
+                <div class="pic-row">
+                  <span class="pic-now"></span>
+                  <label class="btn ghost small">Change picture<input type="file" accept="image/*" hidden name="pic" /></label>
+                  <button class="link" type="button" data-nopic>Remove</button>
+                </div>
+                <label class="field"><span>Name</span>
+                  <input name="display_name" maxlength="40" value="${esc(p.display_name)}" autocomplete="nickname" />
+                </label>
+                <label class="field"><span>Username</span>
+                  <span class="at-input"><i>@</i><input name="handle" maxlength="20" value="${esc(p.handle)}" autocomplete="username" spellcheck="false" /></span>
+                  <small data-handle-note>Others find you by this. You can change it once a day.</small>
+                </label>
+                <label class="field"><span class="row-label">Bio <em data-count>${(p.bio || "").length}/160</em></span>
+                  <textarea name="bio" maxlength="160" rows="3">${esc(p.bio || "")}</textarea>
+                </label>
+                <fieldset class="field">
+                  <legend>Profile colour</legend>
+                  <div class="dots" role="radiogroup" aria-label="Profile colour">
+                    ${COLOURS.map((c, i) => `<button type="button" class="dot" role="radio" style="--d:${c}" data-c="${i ? c : ""}" aria-label="${i ? c : "Pink (default)"}"></button>`).join("")}
+                  </div>
+                </fieldset>
+                <p class="error" role="alert"></p>
+                <div class="save-row">
+                  <span class="saved" hidden>Saved</span>
+                  <button class="btn" type="submit" data-busy="Saving…">${first ? "Save profile" : "Save changes"}</button>
+                </div>
+              </form>
+
+              <section class="panel">
+                <h2>Signed in</h2>
+                <dl class="facts"><div><dt>Email</dt><dd>${esc(me.user.email)}</dd></div></dl>
+                <div class="split">
+                  <p class="hint">Signing out here doesn't sign you out of the app.</p>
+                  <div class="btns">
+                    <button class="btn ghost small" data-password>Change password</button>
+                    <button class="btn ghost small" data-signout>Sign out</button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel danger-zone">
+                <h2>Delete account</h2>
+                <div class="split">
+                  <p class="hint">Deletes your profile, followers and everything Tune! keeps online about you. The music on your PC isn't touched. This can't be undone.</p>
+                  <button class="btn danger small" data-delete>Delete account</button>
+                </div>
+                <form class="confirm-delete form" hidden novalidate>
+                  <label class="field"><span>Type <strong>${esc(p.handle || "delete")}</strong> to confirm</span>
+                    <input name="confirm" autocomplete="off" spellcheck="false" />
+                  </label>
+                  <p class="error" role="alert"></p>
+                  <div class="btns">
+                    <button class="btn ghost small" type="button" data-cancel>Keep my account</button>
+                    <button class="btn danger small" type="submit" data-busy="Deleting…">Delete it for good</button>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </div>`;
+
+        const form = $("#profile", out);
+        const drawPreview = () => {
+          const shown = { ...draft, avatar_path: picture ? null : draft.avatar_path };
+          const src = picture ? URL.createObjectURL(picture) : pic(shown.avatar_path);
+          const face = src ? `<span class="av" style="--s:88px;--a:${esc(draft.accent || "#ff2e88")}"><img src="${src}" alt=""></span>` : avatar(shown, 88);
+          const banner = pic(p.banner_path);
+          $(".preview", out).style.setProperty("--accent", draft.accent || "#ff2e88");
+          $(".preview", out).innerHTML = `
+            <div class="banner"${banner ? ` style="background-image:url('${banner}')"` : ""}></div>
+            <div class="body">
+              <div class="avatar-slot">${face}</div>
+              <h3>${esc(draft.display_name || draft.handle || "Your name")}${badge(p)}</h3>
+              <p class="handle">@${esc(draft.handle || "username")}</p>
+              ${draft.bio ? `<p class="bio">${esc(draft.bio)}</p>` : ""}
+            </div>`;
+          $(".pic-now", out).innerHTML = face.replace("--s:88px", "--s:48px");
+          $("[data-nopic]", out).hidden = !(picture || draft.avatar_path);
+          out.querySelectorAll(".dot").forEach((d) => d.setAttribute("aria-checked", String((d.dataset.c || "#ff2e88") === (draft.accent || "#ff2e88"))));
+        };
+        drawPreview();
+
+        form.addEventListener("input", (e) => {
+          const n = e.target.name;
+          if (n === "display_name" || n === "bio") draft[n] = e.target.value;
+          if (n === "bio") $("[data-count]", out).textContent = `${e.target.value.length}/160`;
+          if (n === "handle") checkHandle(e.target);
+          drawPreview();
+        });
+        form.querySelectorAll(".dot").forEach((d) =>
+          d.addEventListener("click", () => {
+            draft.accent = d.dataset.c || null;
+            drawPreview();
+          }),
+        );
+        $("[name=pic]", out).addEventListener("change", async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          try {
+            picture = await squareAvatar(file);
+            drawPreview();
+          } catch (x) {
+            $(".error", form).textContent = x.message;
+          }
+        });
+        $("[data-nopic]", out).addEventListener("click", () => {
+          picture = null;
+          draft.avatar_path = null;
+          drawPreview();
+        });
+
+        let checkTimer;
+        function checkHandle(input) {
+          const h = input.value.trim().toLowerCase();
+          input.value = h;
+          draft.handle = h;
+          const note = $("[data-handle-note]", out);
+          clearTimeout(checkTimer);
+          const problem = handleProblem(h);
+          note.classList.remove("bad", "good");
+          if (h === p.handle) {
+            handleOk = true;
+            note.textContent = "Others find you by this. You can change it once a day.";
+            return;
+          }
+          if (problem) {
+            handleOk = false;
+            note.textContent = problem;
+            note.classList.add("bad");
+            return;
+          }
+          handleOk = false;
+          note.textContent = "Checking…";
+          checkTimer = setTimeout(async () => {
+            const free = await api.handleAvailable(h).catch(() => null);
+            if (input.value !== h) return;
+            handleOk = !!free;
+            note.textContent = free === null ? "Couldn't check. Try again in a moment." : free ? `@${h} is free` : `@${h} is taken`;
+            note.classList.add(free ? "good" : "bad");
+          }, 350);
+        }
+
+        wire(form, async () => {
+          const problem = handleProblem(draft.handle);
+          if (problem) throw new Error(`Username: ${problem}.`);
+          if (!handleOk) throw new Error("Pick a username that's free.");
+          let avatar_path = draft.avatar_path;
+          if (picture) avatar_path = await api.uploadAvatar(picture);
+          const saved = await api.saveProfile({ ...draft, avatar_path });
+          if (first) return (location.href = href("/account"));
+          me.profile = saved;
+          refreshAccountButton(me);
+          signedIn(me);
+          const s = $(".saved", out);
+          s.hidden = false;
+          setTimeout(() => (s.hidden = true), 2400);
+        });
+
+        $("[data-signout]", out).addEventListener("click", async () => {
+          await api.signOut().catch(() => {});
+          location.href = href("/");
+        });
+        $("[data-password]", out).addEventListener("click", () => forgot(me.user.email));
+
+        const del = $(".confirm-delete", out);
+        $("[data-delete]", out).addEventListener("click", () => {
+          del.hidden = false;
+          $("[name=confirm]", del).focus();
+        });
+        $("[data-cancel]", out).addEventListener("click", () => (del.hidden = true));
+        wire(del, async (f) => {
+          if (f.get("confirm").trim().toLowerCase() !== (p.handle || "delete")) throw new Error(`Type ${p.handle || "delete"} exactly to confirm.`);
+          await api.deleteAccount();
+          out.innerHTML = `<section class="auth"><h1>Your account is gone</h1><p class="sub">Everything Tune! kept online about you has been deleted. Thanks for listening.</p><a class="btn" href="${href("/")}">Back to Tune!</a></section>`;
+          document.querySelectorAll("[data-account]").forEach((s) => (s.innerHTML = ""));
+        });
+      }
+
+      async function start() {
+        const me = await whoami();
+        if (me) signedIn(me);
+        else signedOut(new URLSearchParams(location.search).get("mode") === "signup" ? "up" : "in");
+      }
+      start();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Find people · Tune!</title>
+    <meta name="description" content="Find your friends on Tune! and follow them." />
+    <meta name="theme-color" content="#ff2e88" />
+    <link rel="icon" href="/img/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="/"><img src="/img/icon.png" alt="" />Tune!</a>
+        <nav>
+          <a class="hide-sm" href="/#features">Features</a>
+          <span data-account></span>
+        </nav>
+      </header>
+
+      <main class="people">
+        <h1>Find people</h1>
+        <p class="sub">Search by name or @username, then follow them to see what they're playing in the app.</p>
+        <div id="out"><div class="spinner" aria-label="Loading"></div></div>
+      </main>
+
+      <footer>
+        <span>© 2026 Tune!</span>
+        <nav>
+          <a href="/privacy">Privacy</a>
+          <a href="mailto:hello@tunetheapp.co.uk">Contact</a>
+        </nav>
+      </footer>
+    </div>
+
+    <script type="module">
+      import { api, whoami, esc, avatar, badge, href, $ } from "/js/tune.js";
+
+      const out = $("#out");
+      const me = await whoami();
+
+      if (!me) {
+        out.innerHTML = `
+          <div class="gate">
+            <p>Sign in to search for people. Profiles are only shown to people with a Tune! account.</p>
+            <div class="btns">
+              <a class="btn" href="${href("/account")}">Sign in</a>
+              <a class="btn ghost" href="${href("/account?mode=signup")}">Create an account</a>
+            </div>
+          </div>`;
+      } else {
+        out.innerHTML = `
+          <form class="search" role="search" onsubmit="return false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+            <input type="search" placeholder="Search names and usernames" aria-label="Search people" autocomplete="off" spellcheck="false" />
+          </form>
+          <p class="result-note" aria-live="polite"></p>
+          <ul class="results"></ul>`;
+        const input = $("input", out);
+        const note = $(".result-note", out);
+        const list = $(".results", out);
+        const following = new Map(); // id → true/false, as far as we know
+        const myId = me.user.id;
+
+        function row(p) {
+          const mine = p.id === myId;
+          return `
+            <li>
+              <a class="who" href="${href(`/u/${esc(p.handle)}`)}">
+                ${avatar(p, 48)}
+                <span><strong>${esc(p.display_name || "@" + p.handle)}${badge(p)}</strong><small>@${esc(p.handle)}${p.bio ? ` · ${esc(p.bio)}` : ""}</small></span>
+              </a>
+              ${mine ? `<span class="you">You</span>` : `<button class="btn small follow" data-id="${esc(p.id)}" aria-pressed="false">Follow</button>`}
+            </li>`;
+        }
+        function drawFollow(btn) {
+          const on = following.get(btn.dataset.id);
+          btn.textContent = on ? "Following" : "Follow";
+          btn.classList.toggle("ghost", !!on);
+          btn.setAttribute("aria-pressed", String(!!on));
+        }
+
+        let seq = 0;
+        let timer;
+        input.addEventListener("input", () => {
+          clearTimeout(timer);
+          timer = setTimeout(run, 250);
+        });
+        async function run() {
+          const q = input.value.trim();
+          const mine = ++seq;
+          if (q.replace(/^@/, "").length < 2) {
+            list.innerHTML = "";
+            note.textContent = q ? "Keep typing…" : "";
+            return;
+          }
+          note.textContent = "Searching…";
+          try {
+            const found = await api.search(q);
+            if (mine !== seq) return;
+            note.textContent = found.length ? "" : `No one matches “${q}”. Check the spelling, or try their username.`;
+            list.innerHTML = found.map(row).join("");
+            await Promise.all(
+              found
+                .filter((p) => p.id !== myId && !following.has(p.id))
+                .map(async (p) => following.set(p.id, await api.isFollowing(myId, p.id).catch(() => false))),
+            );
+            if (mine === seq) list.querySelectorAll(".follow").forEach(drawFollow);
+          } catch (x) {
+            if (mine === seq) note.textContent = x.message;
+          }
+        }
+        list.addEventListener("click", async (e) => {
+          const btn = e.target.closest(".follow");
+          if (!btn) return;
+          const id = btn.dataset.id;
+          const was = !!following.get(id);
+          following.set(id, !was);
+          drawFollow(btn);
+          try {
+            await (was ? api.unfollow(myId, id) : api.follow(myId, id));
+          } catch (x) {
+            following.set(id, was);
+            drawFollow(btn);
+            note.textContent = x.message;
+          }
+        });
+        input.focus();
+      }
+    </script>
+  </body>
+</html>
