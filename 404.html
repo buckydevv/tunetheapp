@@ -110,7 +110,7 @@
              ${banner ? `<div class="banner" style="background-image:url('${banner}')"></div>` : `<div class="banner"></div>`}
              <div class="body">
                <div class="avatar">${av ? `<img src="${av}" alt="">` : initial(name)}</div>
-               <h1>${esc(name)}</h1>
+               <h1>${esc(name)}${u.badge === "developer" ? ' <span class="dev-badge" title="Tune! developer">Developer</span>' : ""}</h1>
                <p class="handle">@${esc(u.handle)}</p>
                ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
                <div class="stats">
