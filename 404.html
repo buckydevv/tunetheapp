@@ -93,6 +93,8 @@
           `Join ${host}'s party`,
         );
         document.getElementById("go")?.addEventListener("click", () => openInApp(`tune://join/${p.code}`));
+        // Straight into Tune! if it's installed (the browser may ask first); the button stays for a second try.
+        if (p.open) openInApp(`tune://join/${p.code}`);
       }
 
       async function profile(handle) {
@@ -127,6 +129,7 @@
           `${name} (@${u.handle})`,
         );
         document.getElementById("go").addEventListener("click", () => openInApp(`tune://u/${u.handle}`));
+        openInApp(`tune://u/${u.handle}`);
       }
 
       let m;
