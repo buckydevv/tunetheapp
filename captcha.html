@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Tune! check</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+        color-scheme: dark;
+        overflow: hidden;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 72px;
+      }
+    </style>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=ready&render=explicit" async defer></script>
+  </head>
+  <body>
+    <div id="box"></div>
+    <script>
+      // Shown inside Tune!'s sign-in screen. Cloudflare checks this is a person, and the answer
+      // (a one-time token) goes back to the app, which sends it with the sign-in or sign-up.
+      const tell = (msg) => parent.postMessage({ source: "tune-captcha", ...msg }, "*");
+      function ready() {
+        turnstile.render("#box", {
+          sitekey: "0x4AAAAAAF8hcYKbJAasbokj",
+          theme: "dark",
+          size: "flexible",
+          callback: (token) => tell({ token }),
+          "expired-callback": () => tell({ token: null }),
+          "error-callback": () => tell({ error: true }),
+        });
+      }
+      // The app asks for a fresh token after each use (they only work once).
+      addEventListener("message", (e) => {
+        if (e.data === "tune-captcha-reset" && window.turnstile) turnstile.reset("#box");
+      });
+    </script>
+  </body>
+</html>
