@@ -173,7 +173,6 @@ img {
 .shot {
   position: relative;
   margin: 56px auto 0;
-  max-width: 1080px;
 }
 .shot::before {
   content: "";
@@ -186,6 +185,7 @@ img {
 }
 .shot img {
   width: 100%;
+  height: auto;
   border-radius: 16px;
   box-shadow:
     0 40px 100px -30px #000,
