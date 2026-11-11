@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css?v=5" />
+    <link rel="stylesheet" href="/style.css?v=6" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   </head>
   <body>
@@ -38,7 +38,7 @@
     </div>
 
     <script type="module">
-      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js";
+      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=2";
 
       const out = $("#out");
       const COLOURS = ["#ff2e88", "#ff4d4d", "#ff8a3d", "#ffd23f", "#9dff3c", "#3dffa8", "#3fe3ff", "#3a64ff", "#a46bff", "#ff6ad5"];
@@ -249,7 +249,7 @@
                 </label>
                 <label class="field"><span>Username</span>
                   <span class="at-input"><i>@</i><input name="handle" maxlength="20" value="${esc(p.handle)}" autocomplete="username" spellcheck="false" /></span>
-                  <small data-handle-note>Others find you by this. You can change it once a day.</small>
+                  <small data-handle-note>Others find you by this. You can change it once a week.</small>
                 </label>
                 <label class="field"><span class="row-label">Bio <em data-count>${(p.bio || "").length}/160</em></span>
                   <textarea name="bio" maxlength="160" rows="3">${esc(p.bio || "")}</textarea>
@@ -360,7 +360,7 @@
           note.classList.remove("bad", "good");
           if (h === p.handle) {
             handleOk = true;
-            note.textContent = "Others find you by this. You can change it once a day.";
+            note.textContent = "Others find you by this. You can change it once a week.";
             return;
           }
           if (problem) {
