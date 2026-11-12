@@ -830,6 +830,10 @@ footer a:hover {
   background-position: center;
 }
 .card .body {
+  /* Above the banner (which is positioned for its effects), so the picture overlapping it
+     isn't drawn underneath. */
+  position: relative;
+  z-index: 1;
   padding: 0 28px 30px;
 }
 .card .avatar {
