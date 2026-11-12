@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css?v=7" />
+    <link rel="stylesheet" href="/style.css?v=8" />
   </head>
   <body>
     <div class="wrap">
@@ -41,7 +41,8 @@
             </a>
             <a class="btn ghost" href="#features">See what it does</a>
           </div>
-          <p class="fine" id="version">Free · Windows 10 and 11</p>
+          <p class="fine" id="version">Free · Windows 10 and 11 · Updates itself</p>
+          <p class="fine install-note">Windows may say it "protected your PC" because Tune! is new. Choose <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
 
           <div class="shot">
             <img src="/img/app.jpg?v=5" width="1915" height="1031" alt="Tune! home page with the Daily Mix and today's Recap: listening time, top songs and top artists." />
@@ -176,7 +177,7 @@
           const exe = rel?.assets?.find((a) => /setup\.exe$/i.test(a.name)) ?? rel?.assets?.find((a) => /\.exe$/i.test(a.name));
           if (!exe) return;
           document.querySelectorAll("a.download").forEach((a) => (a.href = exe.browser_download_url));
-          document.getElementById("version").textContent = `Free · Windows 10 and 11 · version ${rel.tag_name.replace(/^v/, "")}`;
+          document.getElementById("version").textContent = `Free · Windows 10 and 11 · Updates itself · Version ${rel.tag_name.replace(/^v/, "")}`;
         })
         .catch(() => {});
     </script>
