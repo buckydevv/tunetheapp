@@ -882,6 +882,147 @@ footer a:hover {
   color: var(--text);
   font: 700 19px var(--display);
 }
+/* Links to other profiles, and the profile song */
+.card .sites {
+  margin: 18px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.card .site {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 220px;
+  height: 34px;
+  padding: 0 13px 0 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--b) 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--b) 30%, transparent);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+.card .site svg {
+  flex: none;
+  color: var(--b);
+}
+.card .site span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.card .site:hover {
+  background: color-mix(in oklab, var(--b) 24%, transparent);
+  transform: translateY(-1px);
+}
+.card .feat {
+  margin: 20px auto 0;
+  width: fit-content;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+}
+.card .feat-rec {
+  position: relative;
+  width: 136px;
+  height: 84px;
+}
+.card .feat-sleeve,
+.card .feat-disc {
+  position: absolute;
+  top: 0;
+  width: 84px;
+  height: 84px;
+}
+.card .feat-sleeve {
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent, var(--pink)) 60%, var(--midnight)), var(--midnight));
+  box-shadow: 0 14px 28px -12px #000, 0 0 0 1px rgba(255, 255, 255, 0.1);
+  font-size: 30px;
+  transform: rotate(-4deg);
+  transition: transform 0.5s;
+}
+.card .feat-sleeve img,
+.card .feat-label img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card .feat-disc {
+  left: 42px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, #0c0b10 0 1.5px, #19171f 1.5px 3px), #0c0b10;
+  box-shadow: 0 10px 24px -10px #000, 0 0 26px -6px color-mix(in oklab, var(--accent, var(--pink)) 70%, transparent);
+  animation: feat-spin 6s linear infinite;
+  transition: left 0.5s;
+}
+.card .feat-disc::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 30deg, transparent, rgba(255, 255, 255, 0.14) 8%, transparent 18%, transparent 50%, rgba(255, 255, 255, 0.1) 58%, transparent 68%);
+}
+.card .feat-label {
+  position: absolute;
+  inset: 31%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--accent, var(--pink));
+  box-shadow: 0 0 0 2px #0c0b10;
+}
+.card .feat:hover .feat-disc {
+  left: 52px;
+  animation-duration: 2.2s;
+}
+.card .feat:hover .feat-sleeve {
+  transform: rotate(-7deg) translateX(-3px);
+}
+@keyframes feat-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+.card .feat-words {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+.card .feat-words small {
+  margin-bottom: 3px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent, var(--pink));
+}
+.card .feat-words b {
+  font: 800 18px/1.2 var(--display);
+  overflow-wrap: anywhere;
+}
+.card .feat-words span {
+  font-size: 13px;
+  color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card .feat-disc {
+    animation: none;
+  }
+}
 .card .code {
   margin: 18px 0 4px;
   font: 800 44px var(--display);
