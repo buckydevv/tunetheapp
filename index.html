@@ -41,7 +41,7 @@
             </a>
             <a class="btn ghost" href="#features">See what it does</a>
           </div>
-          <p class="fine" id="version">Free · Windows 10 and 11 · Updates itself</p>
+          <p class="fine">Free for Windows 10 &amp; 11</p>
           <p class="fine install-note">Windows may say it "protected your PC" because Tune! is new. Choose <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
 
           <div class="shot">
@@ -177,7 +177,6 @@
           const exe = rel?.assets?.find((a) => /setup\.exe$/i.test(a.name)) ?? rel?.assets?.find((a) => /\.exe$/i.test(a.name));
           if (!exe) return;
           document.querySelectorAll("a.download").forEach((a) => (a.href = exe.browser_download_url));
-          document.getElementById("version").textContent = `Free · Windows 10 and 11 · Updates itself · Version ${rel.tag_name.replace(/^v/, "")}`;
         })
         .catch(() => {});
     </script>
