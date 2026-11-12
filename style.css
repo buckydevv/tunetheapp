@@ -827,7 +827,7 @@ footer a:hover {
   margin: -52px auto 0;
   border-radius: 50%;
   border: 5px solid var(--midnight);
-  box-shadow: 0 0 0 4px var(--accent, var(--pink));
+  box-shadow: 0 0 0 5px var(--accent, var(--pink));
   background: linear-gradient(135deg, var(--accent, var(--pink)), var(--violet));
   display: grid;
   place-items: center;
@@ -1280,7 +1280,7 @@ textarea:focus {
 }
 .avatar-slot .av {
   border: 4px solid var(--midnight);
-  box-shadow: 0 0 0 4px var(--a, var(--pink));
+  box-shadow: 0 0 0 5px var(--a, var(--pink));
   box-sizing: content-box;
 }
 .preview h3 {
@@ -1463,6 +1463,12 @@ textarea:focus {
 .who > span:last-child {
   display: grid;
   min-width: 0;
+}
+.results .av,
+.people .av {
+  box-shadow:
+    0 0 0 2px var(--void),
+    0 0 0 4px var(--a, var(--pink));
 }
 .who strong {
   overflow: hidden;

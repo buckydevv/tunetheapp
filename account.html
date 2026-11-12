@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css?v=6" />
+    <link rel="stylesheet" href="/style.css?v=7" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   </head>
   <body>
@@ -38,7 +38,7 @@
     </div>
 
     <script type="module">
-      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=2";
+      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=3";
 
       const out = $("#out");
       const COLOURS = ["#ff2e88", "#ff4d4d", "#ff8a3d", "#ffd23f", "#9dff3c", "#3dffa8", "#3fe3ff", "#3a64ff", "#a46bff", "#ff6ad5"];
@@ -282,11 +282,11 @@
               <section class="panel danger-zone">
                 <h2>Delete account</h2>
                 <div class="split">
-                  <p class="hint">Deletes your profile, followers and everything Tune! keeps online about you. The music on your PC isn't touched. This can't be undone.</p>
+                  <p class="hint">Your profile, followers and listening history are deleted for good. Your music and playlists on your PC stay.</p>
                   <button class="btn danger small" data-delete>Delete account</button>
                 </div>
                 <form class="confirm-delete form" hidden novalidate>
-                  <label class="field"><span>Type <strong>${esc(p.handle || "delete")}</strong> to confirm</span>
+                  <label class="field"><span>Type <strong>${p.handle ? "@" + esc(p.handle) : "delete"}</strong> to confirm</span>
                     <input name="confirm" autocomplete="off" spellcheck="false" />
                   </label>
                   <p class="error" role="alert"></p>
@@ -409,7 +409,7 @@
         });
         $("[data-cancel]", out).addEventListener("click", () => (del.hidden = true));
         wire(del, async (f) => {
-          if (f.get("confirm").trim().toLowerCase() !== (p.handle || "delete")) throw new Error(`Type ${p.handle || "delete"} exactly to confirm.`);
+          if (f.get("confirm").trim().replace(/^@/, "").toLowerCase() !== (p.handle || "delete")) throw new Error(`Type ${p.handle ? "@" + p.handle : "delete"} exactly to confirm.`);
           await api.deleteAccount();
           out.innerHTML = `<section class="auth"><h1>Your account is gone</h1><p class="sub">Everything Tune! kept online about you has been deleted. Thanks for listening.</p><a class="btn" href="${href("/")}">Back to Tune!</a></section>`;
           document.querySelectorAll("[data-account]").forEach((s) => (s.innerHTML = ""));
