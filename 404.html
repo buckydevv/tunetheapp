@@ -12,7 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css?v=9" />
+    <link rel="stylesheet" href="/style.css?v=11" />
+    <link rel="stylesheet" href="/cosmetics.css?v=2" />
   </head>
   <body>
     <div class="wrap">
@@ -121,6 +122,47 @@
         });
         return items.length ? `<div class="sites">${items.join("")}</div>` : "";
       }
+      // Cosmetics earned in the app: a ring around the picture, an effect on the banner, a name
+      // style and up to three badges. Only known ones are drawn.
+      const RINGS = ["glow", "pulse", "duo", "spin", "orbit", "rainbow", "fire", "gold"];
+      const BANNER_FX = ["shimmer", "eq", "stars", "aurora", "embers", "waves", "confetti"];
+      const NAME_FX = ["gradient", "glow", "shine"];
+      const BADGE_INFO = { streak: ["🔥", "Streak"], listener: ["🎧", "Listener"], party: ["🎉", "Party"], creator: ["🎨", "Creator"] };
+      const TIER_NAMES = ["Bronze", "Silver", "Gold", "Diamond"];
+      const TIER_COLOURS = ["#d08a4c", "#cfd6e4", "#ffcf4a", "#9ff3ff"];
+      function fxOf(u) {
+        const c = u.cosmetics && typeof u.cosmetics === "object" ? u.cosmetics : {};
+        const dia = Array.isArray(c.dia) ? c.dia : [];
+        const badges = [];
+        for (const b of Array.isArray(c.badges) ? c.badges : []) {
+          const m = typeof b === "string" && b.match(/^(streak|listener|party|creator)_([1-4])$/);
+          if (m && !badges.some((x) => x.id === m[1])) badges.push({ id: m[1], tier: Number(m[2]) });
+        }
+        return {
+          ring: RINGS.includes(c.ring) ? c.ring : "none",
+          banner: BANNER_FX.includes(c.banner) ? c.banner : "none",
+          name: NAME_FX.includes(c.name) ? c.name : "none",
+          dia: { ring: dia.includes("ring"), banner: dia.includes("banner"), name: dia.includes("name") },
+          badges: badges.slice(0, 3),
+        };
+      }
+      function bannerFxHtml(fx, dia) {
+        if (fx === "none") return "";
+        const spots = Array.from({ length: 28 }, (_, i) => ({ i, x: `${(i * 37) % 100}%`, y: `${(i * 53) % 90}%` }));
+        const colours = ["#ff2e88", "#ffd23f", "#22e4ff", "#9dff3c", "#a46bff"];
+        let inner = "";
+        if (fx === "eq") inner = Array.from({ length: 32 }, (_, i) => `<i style="--i:${i}"></i>`).join("");
+        else if (fx === "stars") inner = spots.map((s) => `<i style="--i:${s.i};--x:${s.x};--y:${s.y}"></i>`).join("");
+        else if (fx === "embers") inner = spots.slice(0, 18).map((s) => `<i style="--i:${s.i};--x:${s.x}"></i>`).join("");
+        else if (fx === "confetti") inner = spots.slice(0, 22).map((s) => `<i style="--i:${s.i};--x:${s.x};--c:${colours[s.i % 5]}"></i>`).join("");
+        else if (fx === "waves")
+          inner =
+            '<svg viewBox="0 0 1200 100" preserveAspectRatio="none"><path d="M0 60 Q 75 20 150 60 T 300 60 T 450 60 T 600 60 T 750 60 T 900 60 T 1050 60 T 1200 60 V100 H0Z"/></svg>' +
+            '<svg viewBox="0 0 1200 100" preserveAspectRatio="none"><path d="M0 50 Q 100 85 200 50 T 400 50 T 600 50 T 800 50 T 1000 50 T 1200 50 V100 H0Z"/></svg>';
+        if (dia) inner += `<span class="dust">${Array.from({ length: 12 }, (_, i) => `<i style="--i:${i};--x:${(i * 29 + 7) % 96}%;--y:${(i * 41 + 11) % 86}%"></i>`).join("")}</span>`;
+        return `<div class="fx-banner b-${fx}${dia ? " dia" : ""}" aria-hidden="true">${inner}</div>`;
+      }
+
       // The featured song: a record half out of its sleeve (no audio, just what it is).
       function featuredHtml(u) {
         if (!u.song_title) return "";
@@ -139,14 +181,22 @@
         const av = pic(u.avatar_path);
         const banner = pic(u.banner_path);
         const hours = u.minutes ? Math.round(u.minutes / 60) : 0;
+        const fx = fxOf(u);
+        const tint = /^#[0-9a-fA-F]{6}$/.test(u.accent || "") ? u.accent : "#ff2e88";
+        const chips = [
+          u.level > 1 ? `<span class="chip lvl">Lv ${Number(u.level) || 1}</span>` : "",
+          u.streak > 0 ? `<span class="chip fire">🔥 ${Number(u.streak) || 0}</span>` : "",
+          ...fx.badges.map((b) => `<span class="chip badge" style="--tc:${TIER_COLOURS[b.tier - 1]}">${BADGE_INFO[b.id][0]} ${TIER_NAMES[b.tier - 1]} ${BADGE_INFO[b.id][1]}</span>`),
+        ].join("");
         document.documentElement.style.setProperty("--accent", u.accent || "#ff2e88");
         show(
           `<div class="card">
-             ${banner ? `<div class="banner" style="background-image:url('${banner}')"></div>` : `<div class="banner"></div>`}
+             <div class="banner" style="--rc:${tint}${banner ? `;background-image:url('${banner}')` : ""}">${bannerFxHtml(fx.banner, fx.dia.banner)}</div>
              <div class="body">
-               <div class="avatar">${av ? `<img src="${av}" alt="">` : initial(name)}</div>
-               <h1>${esc(name)}${u.badge === "developer" ? ' <span class="dev-badge" title="Tune! developer">Developer</span>' : ""}</h1>
+               <div class="fx-ring ringwrap r-${fx.ring}${fx.dia.ring && fx.ring !== "none" ? " dia" : ""}" style="--rc:${tint};--gap:0px;--rw:5px"><div class="avatar">${av ? `<img src="${av}" alt="">` : initial(name)}</div>${fx.dia.ring && fx.ring !== "none" ? '<span class="glints"><i></i><i></i><i></i><i></i></span>' : ""}</div>
+               <h1><span class="fx-name n-${fx.name}${fx.dia.name ? " dia" : ""}" style="--rc:${tint}">${esc(name)}</span>${u.badge === "developer" ? ' <span class="dev-badge" title="Tune! developer">Developer</span>' : ""}</h1>
                <p class="handle">@${esc(u.handle)}</p>
+               ${chips ? `<div class="chips">${chips}</div>` : ""}
                ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
                <div class="stats">
                  <span><b id="followers">${u.followers}</b>followers</span>
