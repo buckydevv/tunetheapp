@@ -1757,3 +1757,11 @@ textarea:focus {
   background: var(--pink);
   color: #10051c;
 }
+.card .chip svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 1.9;
+}
+.card .chip.badge svg {
+  color: var(--tc);
+}

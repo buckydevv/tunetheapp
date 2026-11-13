@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css?v=12" />
+    <link rel="stylesheet" href="/style.css?v=13" />
     <link rel="stylesheet" href="/cosmetics.css?v=2" />
   </head>
   <body>
@@ -127,7 +127,14 @@
       const RINGS = ["glow", "pulse", "duo", "spin", "orbit", "rainbow", "fire", "gold"];
       const BANNER_FX = ["shimmer", "eq", "stars", "aurora", "embers", "waves", "confetti"];
       const NAME_FX = ["gradient", "glow", "shine"];
-      const BADGE_INFO = { streak: ["🔥", "Streak"], listener: ["🎧", "Listener"], party: ["🎉", "Party"], creator: ["🎨", "Creator"] };
+      const ICON = (d) => `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      const FLAME = ICON('<path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-2.6 1.4-4.6 3.1-6.2.3 1.6 1.1 2.7 2.2 3.3-.2-3.4 1.2-6.1 3.7-8.4.4 2.9 1.7 4.6 3.1 6.2 1.3 1.5 1.9 3.1 1.9 5.1 0 3.6-2.6 6.2-6.5 6.2z"/>');
+      const BADGE_INFO = {
+        streak: [FLAME, "Streak"],
+        listener: [ICON('<path d="M4.5 15.5V12a7.5 7.5 0 0 1 15 0v3.5"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.6"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.6"/>'), "Listener"],
+        party: [ICON('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14.4a5.5 5.5 0 0 1 3 5.1"/>'), "Party"],
+        creator: [ICON('<path d="M19.5 4.5 11 13"/><path d="M9.5 12.5c-2.2 0-3.5 1.5-3.5 3.4 0 1.5-.7 2.6-2.5 3.1 3.9 1.3 8.2.2 8.4-3.6z"/>'), "Creator"],
+      };
       const TIER_NAMES = ["Bronze", "Silver", "Gold", "Diamond"];
       const TIER_COLOURS = ["#d08a4c", "#cfd6e4", "#ffcf4a", "#9ff3ff"];
       function fxOf(u) {
@@ -185,7 +192,7 @@
         const tint = /^#[0-9a-fA-F]{6}$/.test(u.accent || "") ? u.accent : "#ff2e88";
         const chips = [
           u.level > 1 ? `<span class="chip lvl">Lv ${Number(u.level) || 1}</span>` : "",
-          u.streak > 0 ? `<span class="chip fire">🔥 ${Number(u.streak) || 0}</span>` : "",
+          u.streak > 0 ? `<span class="chip fire">${FLAME} ${Number(u.streak) || 0}</span>` : "",
           ...fx.badges.map((b) => `<span class="chip badge" style="--tc:${TIER_COLOURS[b.tier - 1]}">${BADGE_INFO[b.id][0]} ${TIER_NAMES[b.tier - 1]} ${BADGE_INFO[b.id][1]}</span>`),
         ].join("");
         document.documentElement.style.setProperty("--accent", u.accent || "#ff2e88");
