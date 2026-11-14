@@ -14,7 +14,7 @@ export const MOCK = local && new URLSearchParams(location.search).has("mock");
 /** Cloudflare's check that you're a person. Its always-passes test key on this PC. */
 export const CAPTCHA_KEY = local ? "1x00000000000000000000AA" : "0x4AAAAAAF8hcYKbJAasbokj";
 
-const COLS = "id, handle, display_name, bio, avatar_path, banner_path, accent, created_at, handle_changed_at, profile_badges(badge)";
+const COLS = "id, handle, display_name, bio, avatar_path, banner_path, accent, created_at, handle_changed_at, level, streak, cosmetics, profile_badges(badge)";
 
 // ── Small helpers ──
 
@@ -167,6 +167,15 @@ const real = {
     if (error) throw new Error(`Couldn't save your profile. ${friendly(error)}`);
     return flatten(data);
   },
+  /** Saves what's worn (ring, banner effect, name style, diamond versions, badges). */
+  async saveLook(cosmetics) {
+    const sb = await client();
+    const { data: s } = await sb.auth.getSession();
+    const id = s.session?.user.id;
+    if (!id) throw new Error("Sign in first");
+    const { error } = await sb.from("profiles").update({ cosmetics }).eq("id", id);
+    if (error) throw new Error(`Couldn't save your look. ${friendly(error)}`);
+  },
   async deleteAccount() {
     const sb = await client();
     const { data: s } = await sb.auth.getSession();
@@ -222,7 +231,18 @@ const PEOPLE = [
 const wait = (ms = 350) => new Promise((r) => setTimeout(r, ms));
 const mockState = JSON.parse(sessionStorage.getItem("tune-mock") || "null") ?? {
   signedIn: true,
-  profile: { id: "mock-me", handle: "you", display_name: "You", bio: "Testing the website", avatar_path: null, accent: "#ff2e88", badge: null },
+  profile: {
+    id: "mock-me",
+    handle: "you",
+    display_name: "You",
+    bio: "Testing the website",
+    avatar_path: null,
+    accent: "#ff2e88",
+    badge: null,
+    level: 27,
+    streak: 12,
+    cosmetics: { ring: "neon", banner: "stars", name: "gradient", dia: [], badges: ["streak_2", "listener_3"] },
+  },
   follows: [],
 };
 const keep = () => sessionStorage.setItem("tune-mock", JSON.stringify(mockState));
@@ -271,6 +291,11 @@ const mock = {
     mockState.profile = { ...mockState.profile, ...p, handle: p.handle.toLowerCase() };
     keep();
     return mockState.profile;
+  },
+  async saveLook(cosmetics) {
+    await wait(150);
+    mockState.profile = { ...mockState.profile, cosmetics };
+    keep();
   },
   async deleteAccount() {
     await wait();
