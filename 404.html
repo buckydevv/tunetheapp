@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css?v=14" />
-    <link rel="stylesheet" href="/cosmetics.css?v=3" />
+    <link rel="stylesheet" href="/cosmetics.css?v=4" />
   </head>
   <body>
     <div class="wrap">
@@ -164,7 +164,25 @@
         else if (fx === "confetti") inner = spots.slice(0, 22).map((s) => `<i style="--i:${s.i};--x:${s.x};--c:${colours[s.i % 5]}"></i>`).join("");
         else if (fx === "rain") inner = spots.slice(0, 24).map((s) => `<i style="--i:${s.i};--x:${s.x}"></i>`).join("");
         else if (fx === "bubbles") inner = spots.slice(0, 16).map((s) => `<i style="--i:${s.i};--x:${s.x};--s:${6 + ((s.i * 7) % 12)}px"></i>`).join("");
-        else if (fx === "waves")
+        else if (fx === "aurora")
+          inner = [["-22%", "-30%", "95%", "-7deg", "13s", "0s"], ["-2%", "18%", "90%", "6deg", "17s", "-6s"], ["-30%", "45%", "80%", "-4deg", "21s", "-11s"]].map(([t, l, w, r, dur, d]) => `<i style="--t:${t};--l:${l};--w:${w};--r:${r};--dur:${dur};--d:${d}"></i>`).join("");
+        else if (fx === "lasers") {
+          const emitters = [["10%", 8, 62], ["50%", -34, 34], ["90%", -62, -8]];
+          inner = emitters
+            .flatMap(([x, from, to], k) =>
+              [-1, 0, 1].map((s, j) => {
+                const i = k * 3 + j;
+                const c = (k + j) % 2 ? "#22e4ff" : "var(--rc)";
+                return `<i style="--x:${x};--from:${from + s * 14}deg;--to:${to + s * 14}deg;--dur:${2.4 + (i % 4) * 0.55}s;--d:${-i * 0.7}s;--c:${c}"></i>`;
+              }),
+            )
+            .join("");
+          inner += emitters.map(([x]) => `<b style="--x:${x}"></b>`).join("");
+        } else if (fx === "glitch") {
+          const slices = [["10%", "7%", "0s", "3.1s", "90deg"], ["29%", "2%", "-0.5s", "2.6s", "-70deg"], ["43%", "15%", "-1.2s", "3.7s", "150deg"], ["62%", "3%", "-1.9s", "2.9s", "45deg"], ["71%", "10%", "-2.4s", "4.3s", "-130deg"], ["88%", "4%", "-0.9s", "3.4s", "200deg"]];
+          inner = slices.map(([t, h, d, dur, hue]) => `<i style="--t:${t};--h:${h};--d:${d};--dur:${dur};--hue:${hue}"></i>`).join("");
+          inner += '<i class="all" style="--t:0%;--h:100%;--d:-2s;--dur:6.5s"></i>';
+        } else if (fx === "waves")
           inner =
             '<svg viewBox="0 0 1200 100" preserveAspectRatio="none"><path d="M0 60 Q 75 20 150 60 T 300 60 T 450 60 T 600 60 T 750 60 T 900 60 T 1050 60 T 1200 60 V100 H0Z"/></svg>' +
             '<svg viewBox="0 0 1200 100" preserveAspectRatio="none"><path d="M0 50 Q 100 85 200 50 T 400 50 T 600 50 T 800 50 T 1000 50 T 1200 50 V100 H0Z"/></svg>';
