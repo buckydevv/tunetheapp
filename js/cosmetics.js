@@ -55,7 +55,7 @@ export const diamondUnlock = (u) => (!u ? null : "level" in u ? { level: u.level
 export const earned = (u, level, streak) => !u || ("level" in u ? level >= u.level : streak >= u.streak);
 export const unlockText = (u) => (!u ? "Free" : "level" in u ? `Level ${u.level}` : `${u.streak}-day streak`);
 
-export const TIER_NAMES = ["Bronze", "Silver", "Gold", "Diamond"];
+export const TIER_NAMES = ["Rising", "Encore", "Headliner", "Legend"];
 export const TIER_COLOURS = ["#d08a4c", "#cfd6e4", "#ffcf4a", "#9ff3ff"];
 const ICON = (d, s = 13) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 export const FLAME = ICON('<path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-2.6 1.4-4.6 3.1-6.2.3 1.6 1.1 2.7 2.2 3.3-.2-3.4 1.2-6.1 3.7-8.4.4 2.9 1.7 4.6 3.1 6.2 1.3 1.5 1.9 3.1 1.9 5.1 0 3.6-2.6 6.2-6.5 6.2z"/>');
