@@ -10,7 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css?v=13" />
+    <link rel="stylesheet" href="/style.css?v=14" />
+    <link rel="stylesheet" href="/cosmetics.css?v=3" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   </head>
   <body>
@@ -38,7 +39,8 @@
     </div>
 
     <script type="module">
-      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=3";
+      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=4";
+      import { PARTS, LOCK, readFx, saveForm, earned, diamondUnlock, unlockText, ringHtml, bannerFxHtml, nameHtml, chipsHtml } from "/js/cosmetics.js?v=1";
 
       const out = $("#out");
       const COLOURS = ["#ff2e88", "#ff4d4d", "#ff8a3d", "#ffd23f", "#9dff3c", "#3dffa8", "#3fe3ff", "#3a64ff", "#a46bff", "#ff6ad5"];
@@ -223,6 +225,8 @@
         const first = !me.profile;
         const p = me.profile ?? { handle: "", display_name: "", bio: "", avatar_path: null, accent: null };
         let draft = { ...p };
+        let look = readFx(p.cosmetics);
+        let lookPart = "ring";
         let picture = null; // a new picture, not uploaded yet
         let handleOk = true;
 
@@ -267,6 +271,22 @@
                 </div>
               </form>
 
+              <section class="panel look" aria-labelledby="look-title">
+                <div class="look-head">
+                  <h2 id="look-title">Your look</h2>
+                  <span class="saved look-saved" hidden>Saved</span>
+                </div>
+                <p class="sub small">Earned by levelling up and keeping your streak in the Tune! app. You're level ${Number(p.level) || 1}${Number(p.streak) ? ` with a ${Number(p.streak)}-day streak` : ""}.</p>
+                <div class="tabs" role="tablist" aria-label="What to change">
+                  <button type="button" role="tab" data-part="ring" aria-selected="true">Ring</button>
+                  <button type="button" role="tab" data-part="banner" aria-selected="false">Banner</button>
+                  <button type="button" role="tab" data-part="name" aria-selected="false">Name</button>
+                </div>
+                <div class="looks" role="radiogroup" aria-label="Styles"></div>
+                <div class="dia-row"></div>
+                <p class="fine">Badges are picked in the app. <span class="error look-error" role="alert"></span></p>
+              </section>
+
               <section class="panel">
                 <h2>Signed in</h2>
                 <dl class="facts"><div><dt>Email</dt><dd>${esc(me.user.email)}</dd></div></dl>
@@ -305,13 +325,17 @@
           const src = picture ? URL.createObjectURL(picture) : pic(shown.avatar_path);
           const face = src ? `<span class="av" style="--s:88px;--a:${esc(draft.accent || "#ff2e88")}"><img src="${src}" alt=""></span>` : avatar(shown, 88);
           const banner = pic(p.banner_path);
-          $(".preview", out).style.setProperty("--accent", draft.accent || "#ff2e88");
+          const tint = /^#[0-9a-fA-F]{6}$/.test(draft.accent || "") ? draft.accent : "#ff2e88";
+          const dia = (part) => look.dia.includes(part);
+          const ringed = look.ring === "none" ? face : ringHtml(look.ring, dia("ring"), tint, face, { gap: 4, width: 5 });
+          $(".preview", out).style.setProperty("--accent", tint);
           $(".preview", out).innerHTML = `
-            <div class="banner"${banner ? ` style="background-image:url('${banner}')"` : ""}></div>
+            <div class="banner"${banner ? ` style="background-image:url('${banner}')"` : ""}>${bannerFxHtml(look.banner, dia("banner"), tint)}</div>
             <div class="body">
-              <div class="avatar-slot">${face}</div>
-              <h3>${esc(draft.display_name || draft.handle || "Your name")}${badge(p)}</h3>
+              <div class="avatar-slot${look.ring === "none" ? "" : " ringed"}">${ringed}</div>
+              <h3>${nameHtml(esc(draft.display_name || draft.handle || "Your name"), look.name, dia("name"), tint)}${badge(p)}</h3>
               <p class="handle">@${esc(draft.handle || "username")}</p>
+              <div class="chips">${chipsHtml(Number(p.level) || 1, Number(p.streak) || 0, look.badges)}</div>
               ${draft.bio ? `<p class="bio">${esc(draft.bio)}</p>` : ""}
             </div>`;
           $(".pic-now", out).innerHTML = face.replace("--s:88px", "--s:48px");
@@ -319,6 +343,86 @@
           out.querySelectorAll(".dot").forEach((d) => d.setAttribute("aria-checked", String((d.dataset.c || "#ff2e88") === (draft.accent || "#ff2e88"))));
         };
         drawPreview();
+
+        // ── Your look: pick a ring, banner effect or name style you've earned ──
+        const level = Number(p.level) || 1;
+        const streak = Number(p.streak) || 0;
+        const lookPanel = $(".look", out);
+        // A brand-new account (no profile yet) has nothing earned to show.
+        if (first) lookPanel.remove();
+        function drawLooks() {
+          if (first) return;
+          const tint = /^#[0-9a-fA-F]{6}$/.test(draft.accent || "") ? draft.accent : "#ff2e88";
+          if (!first) lookPanel.querySelectorAll("[data-part]").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.part === lookPart)));
+          $(".looks", lookPanel).innerHTML = PARTS[lookPart]
+            .map((c) => {
+              const ok = earned(c.unlock, level, streak) || c.id === look[lookPart];
+              const on = look[lookPart] === c.id;
+              const swatch =
+                lookPart === "ring"
+                  ? ringHtml(c.id, false, tint, '<span class="mini-av"></span>', { gap: 2, width: 3 })
+                  : lookPart === "banner"
+                    ? `<span class="mini-banner">${bannerFxHtml(c.id, false, tint)}</span>`
+                    : nameHtml("Aa", c.id, false, tint);
+              return `<button type="button" class="look-opt" role="radio" aria-checked="${on}" data-id="${c.id}" ${ok ? "" : "disabled"} title="${ok ? esc(c.name) : `Unlocks at ${unlockText(c.unlock)}`}">
+                <span class="swatch">${swatch}</span>
+                <b>${esc(c.name)}</b>
+                <small>${ok ? (on ? "Wearing" : "&nbsp;") : `${LOCK} ${unlockText(c.unlock)}`}</small>
+              </button>`;
+            })
+            .join("");
+          // The diamond version of what's picked.
+          const cur = PARTS[lookPart].find((c) => c.id === look[lookPart]);
+          const du = cur?.unlock ? diamondUnlock(cur.unlock) : null;
+          const row = $(".dia-row", lookPanel);
+          if (!du) {
+            row.innerHTML = "";
+          } else {
+            const ok = earned(du, level, streak);
+            const on = look.dia.includes(lookPart);
+            row.innerHTML = `<label class="dia${ok ? "" : " locked"}"><input type="checkbox" ${on ? "checked" : ""} ${ok || on ? "" : "disabled"} /><span class="gem" aria-hidden="true">&#9670;</span><span><b>Diamond ${esc(cur.name)}</b><small>${ok ? "Icy, brighter, with glints" : `Unlocks at ${unlockText(du)}`}</small></span></label>`;
+            $("input", row).addEventListener("change", (e) => {
+              look = { ...look, dia: e.target.checked ? [...new Set([...look.dia, lookPart])] : look.dia.filter((x) => x !== lookPart) };
+              saveLook();
+            });
+          }
+        }
+        let lookTimer;
+        function saveLook() {
+          drawLooks();
+          drawPreview();
+          const err = $(".look-error", lookPanel);
+          err.textContent = "";
+          clearTimeout(lookTimer);
+          lookTimer = setTimeout(async () => {
+            try {
+              const cosmetics = saveForm(look);
+              await api.saveLook(cosmetics);
+              p.cosmetics = cosmetics;
+              const s = $(".look-saved", lookPanel);
+              s.hidden = false;
+              setTimeout(() => (s.hidden = true), 1800);
+            } catch (x) {
+              err.textContent = /check constraint/i.test(x.message) ? "That one can't be saved yet. Try again after the next Tune! update." : x.message;
+            }
+          }, 300);
+        }
+        lookPanel.querySelectorAll("[data-part]").forEach((t) =>
+          t.addEventListener("click", () => {
+            lookPart = t.dataset.part;
+            drawLooks();
+          }),
+        );
+        if (!first) $(".looks", lookPanel).addEventListener("click", (e) => {
+          const b = e.target.closest(".look-opt");
+          if (!b || b.disabled) return;
+          const id = b.dataset.id;
+          if (look[lookPart] === id) return;
+          // The diamond version goes with the style it was earned for.
+          look = { ...look, [lookPart]: id, dia: look.dia.filter((x) => x !== lookPart) };
+          saveLook();
+        });
+        drawLooks();
 
         form.addEventListener("input", (e) => {
           const n = e.target.name;
@@ -331,6 +435,7 @@
           d.addEventListener("click", () => {
             draft.accent = d.dataset.c || null;
             drawPreview();
+            drawLooks();
           }),
         );
         $("[name=pic]", out).addEventListener("change", async (e) => {

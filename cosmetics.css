@@ -393,6 +393,338 @@
   background-image: linear-gradient(100deg, #bfefff 0%, #ffffff 20%, #9fd8ff 40%, #f2fdff 60%, #a9c4ff 80%, #ffffff 100%);
 }
 
+/* ── More rings (1.0.8) ── */
+/* Vinyl: a record's black grooves, with the light sliding round them. */
+.fx-ring.r-vinyl::before {
+  background:
+    conic-gradient(from 0deg, transparent 0 8%, rgba(255, 255, 255, 0.55) 12%, transparent 16% 58%, rgba(255, 255, 255, 0.4) 62%, transparent 66%),
+    repeating-radial-gradient(circle, #121018 0 1px, #2c2a36 1px 2px);
+  animation: fx-turn 3.4s linear infinite;
+}
+.fx-ring.r-vinyl::after {
+  inset: calc(-1 * (var(--gap) + var(--rw) + 1.5px));
+  border: 1.5px solid color-mix(in oklab, var(--rc) 80%, transparent);
+}
+/* Soundwave: bars all round the picture, bouncing like an equaliser. */
+.fx-ring.r-wave::before {
+  background: color-mix(in oklab, var(--rc) 70%, white);
+}
+.fx-ring.r-wave::after {
+  inset: calc(-1 * (var(--gap) + var(--rw) + 9px));
+  background: repeating-conic-gradient(var(--rc) 0 4deg, transparent 4deg 10deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 8px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 8px));
+  animation:
+    fx-bounce 0.46s ease-in-out infinite alternate,
+    fx-turn 14s linear infinite;
+}
+@keyframes fx-bounce {
+  from {
+    scale: 0.9;
+    opacity: 0.55;
+  }
+  to {
+    scale: 1.02;
+    opacity: 1;
+  }
+}
+/* Neon tube: a white-hot core in a coloured glow that flickers now and then. */
+.fx-ring.r-neon::before {
+  background: #fff;
+  animation: fx-neon 5s steps(1) infinite;
+}
+.fx-ring.r-neon::after {
+  box-shadow:
+    0 0 0 calc(var(--rw) * 0.5) var(--rc),
+    0 0 12px 3px var(--rc),
+    0 0 30px 6px color-mix(in oklab, var(--rc) 45%, transparent),
+    inset 0 0 10px 1px color-mix(in oklab, var(--rc) 60%, transparent);
+  animation: fx-neon 5s steps(1) infinite;
+}
+@keyframes fx-neon {
+  0%,
+  41%,
+  45%,
+  100% {
+    opacity: 1;
+  }
+  42%,
+  44% {
+    opacity: 0.35;
+  }
+}
+/* Galaxy: deep space with stars, slowly turning. */
+.fx-ring.r-galaxy::before {
+  background:
+    radial-gradient(1.2px 1.2px at 18% 22%, #fff 99%, transparent),
+    radial-gradient(1px 1px at 78% 30%, #fff 99%, transparent),
+    radial-gradient(1.4px 1.4px at 62% 84%, #fff 99%, transparent),
+    radial-gradient(1px 1px at 30% 70%, #d9c8ff 99%, transparent),
+    radial-gradient(1.2px 1.2px at 90% 60%, #fff 99%, transparent),
+    radial-gradient(1px 1px at 8% 52%, #bfe9ff 99%, transparent),
+    conic-gradient(from 40deg, #12062e, #4b1d8f, #0b1d52, #7b2ff7, #1a0b3d, #22a4d8, #12062e);
+  animation: fx-turn 12s linear infinite;
+}
+.fx-ring.r-galaxy::after {
+  box-shadow:
+    0 0 18px -2px rgba(123, 47, 247, 0.7),
+    0 0 34px -6px rgba(34, 164, 216, 0.5);
+}
+/* Hologram: shifting iridescent foil. */
+.fx-ring.r-holo::before {
+  background: conic-gradient(#ffb3e6, #b3c7ff, #b3fff2, #f6ffb3, #ffb3b3, #d9b3ff, #ffb3e6);
+  animation:
+    fx-turn 6s linear infinite,
+    fx-hue 3s linear infinite;
+}
+.fx-ring.r-holo::after {
+  background: conic-gradient(#ffb3e6, #b3c7ff, #b3fff2, #f6ffb3, #ffb3b3, #d9b3ff, #ffb3e6);
+  filter: blur(10px);
+  opacity: 0.4;
+  animation: fx-turn 6s linear infinite;
+}
+@keyframes fx-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+/* Diamond: a faceted crystal band, glints travelling round it, light caught in the facets. */
+.fx-ring.r-diamond::before {
+  background:
+    conic-gradient(from 0deg, transparent 0 20%, rgba(255, 255, 255, 0.95) 24%, transparent 28% 70%, rgba(255, 255, 255, 0.8) 73%, transparent 76%),
+    conic-gradient(#ffffff 0 7%, #bdf6ff 7% 14%, #6fc9ff 14% 21%, #ffffff 21% 26%, #a9b8ff 26% 33%, #e8fdff 33% 40%, #57b8f0 40% 47%, #ffffff 47% 52%, #c9b8ff 52% 59%, #9ff3ff 59% 66%, #ffffff 66% 72%, #7fd8ff 72% 79%, #f2fdff 79% 86%, #8fb4ff 86% 93%, #ffffff 93%);
+  animation: fx-turn 10s linear infinite;
+}
+.fx-ring.r-diamond::after {
+  box-shadow:
+    0 0 10px 1px rgba(200, 245, 255, 0.85),
+    0 0 30px 4px rgba(120, 210, 255, 0.4);
+  animation: fx-sparkle 2.4s ease-in-out infinite;
+}
+@keyframes fx-sparkle {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* The diamond version of the Diamond ring: a prism, splitting the light into colours. */
+.fx-ring.dia.r-diamond::before {
+  filter: none;
+  background:
+    conic-gradient(from 0deg, transparent 0 20%, rgba(255, 255, 255, 0.95) 24%, transparent 28% 70%, rgba(255, 255, 255, 0.8) 73%, transparent 76%),
+    conic-gradient(#ffffff 0 7%, #ffb3d9 7% 14%, #ffe0a3 14% 21%, #ffffff 21% 26%, #b8ffd1 26% 33%, #a3e9ff 33% 40%, #c9b3ff 40% 47%, #ffffff 47% 52%, #ffb3d9 52% 59%, #ffe0a3 59% 66%, #ffffff 66% 72%, #b8ffd1 72% 79%, #a3e9ff 79% 86%, #c9b3ff 86% 93%, #ffffff 93%);
+}
+.fx-ring.dia:is(.r-vinyl, .r-neon, .r-wave)::before {
+  background: conic-gradient(#e9fdff, #9ff3ff, #c9b8ff, #ffffff, #8fe9ff, #e9fdff);
+}
+
+/* ── More banner effects (1.0.8) ── */
+/* Neon rain: thin streaks falling at a slant. */
+.fx-banner.b-rain i {
+  position: absolute;
+  top: -40px;
+  left: var(--x);
+  width: 2px;
+  height: 34px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--rc) 60%, white));
+  opacity: 0.7;
+  rotate: 12deg;
+  animation: fx-rain 1.3s linear infinite;
+  animation-delay: calc(var(--i) * -0.17s);
+}
+@keyframes fx-rain {
+  to {
+    transform: translate(-40px, 260px);
+  }
+}
+/* Bubbles: rings floating up, wobbling. */
+.fx-banner.b-bubbles i {
+  position: absolute;
+  bottom: -24px;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), transparent 45%);
+  animation: fx-bubble 5.5s ease-in infinite;
+  animation-delay: calc(var(--i) * -0.36s);
+}
+@keyframes fx-bubble {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(10px, -110px);
+  }
+  100% {
+    transform: translate(-6px, -230px);
+    opacity: 0;
+  }
+}
+/* Lasers: beams sweeping up from the bottom, like a club. */
+.fx-banner.b-lasers::before,
+.fx-banner.b-lasers::after {
+  content: "";
+  position: absolute;
+  inset: -40% -10% -20%;
+  background: conic-gradient(
+    from 180deg at 50% 100%,
+    transparent 0 62deg,
+    color-mix(in oklab, var(--rc) 70%, transparent) 64deg,
+    transparent 66deg 88deg,
+    rgba(34, 228, 255, 0.6) 90deg,
+    transparent 92deg 114deg,
+    color-mix(in oklab, var(--rc) 70%, transparent) 116deg,
+    transparent 118deg
+  );
+  transform-origin: 50% 100%;
+  mix-blend-mode: screen;
+  animation: fx-sweep-beams 3.2s ease-in-out infinite alternate;
+}
+.fx-banner.b-lasers::after {
+  animation-duration: 4.4s;
+  animation-direction: alternate-reverse;
+  opacity: 0.7;
+}
+@keyframes fx-sweep-beams {
+  from {
+    rotate: -24deg;
+  }
+  to {
+    rotate: 24deg;
+  }
+}
+/* Glitch: bands of the banner tearing sideways in red and cyan now and then. */
+.fx-banner.b-glitch::before,
+.fx-banner.b-glitch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  animation: fx-glitch 3s steps(1) infinite;
+}
+.fx-banner.b-glitch::before {
+  background: linear-gradient(transparent 0 30%, rgba(255, 46, 136, 0.45) 30% 36%, transparent 36% 64%, rgba(255, 46, 136, 0.3) 64% 67%, transparent 67%);
+}
+.fx-banner.b-glitch::after {
+  background: linear-gradient(transparent 0 48%, rgba(34, 228, 255, 0.45) 48% 55%, transparent 55% 80%, rgba(34, 228, 255, 0.3) 80% 84%, transparent 84%);
+  animation-delay: -1.3s;
+}
+@keyframes fx-glitch {
+  0%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+  8% {
+    transform: translateX(-12px);
+    opacity: 1;
+  }
+  10% {
+    transform: translateX(9px) translateY(6px);
+  }
+  12% {
+    transform: none;
+    opacity: 0;
+  }
+  55% {
+    transform: translateX(14px) translateY(-10px);
+    opacity: 0.9;
+  }
+  57% {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+/* ── More name styles (1.0.8) ── */
+.fx-name.n-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--rc);
+  text-shadow: 0 0 12px color-mix(in oklab, var(--rc) 45%, transparent);
+}
+.fx-name.n-rainbow {
+  background: linear-gradient(90deg, #ff2e88, #ff8a3d, #ffd23f, #9dff3c, #22e4ff, #6e5cff, #ff2e88);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: fx-chrome 3s linear infinite;
+}
+.fx-name.n-fire {
+  background: linear-gradient(0deg, #ff3d00, #ff9100 35%, #ffd600 70%, #fff3b0);
+  background-size: 100% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 6px rgba(255, 110, 0, 0.6));
+  animation: fx-flames 1.4s ease-in-out infinite alternate;
+}
+@keyframes fx-flames {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 100%;
+  }
+}
+.fx-name.n-glitch {
+  color: #fff;
+  animation: fx-glitch-text 2.6s steps(1) infinite;
+}
+@keyframes fx-glitch-text {
+  0%,
+  100% {
+    text-shadow:
+      1.5px 0 #ff2e88,
+      -1.5px 0 #22e4ff;
+  }
+  20% {
+    text-shadow:
+      -3px 1px #ff2e88,
+      3px -1px #22e4ff;
+  }
+  22% {
+    text-shadow:
+      1.5px 0 #ff2e88,
+      -1.5px 0 #22e4ff;
+  }
+  70% {
+    text-shadow:
+      4px -1px #ff2e88,
+      -2px 1px #22e4ff;
+  }
+  72% {
+    text-shadow:
+      1.5px 0 #ff2e88,
+      -1.5px 0 #22e4ff;
+  }
+}
+.fx-name.n-holo {
+  background: linear-gradient(100deg, #ffb3e6, #b3c7ff, #b3fff2, #f6ffb3, #ffb3b3, #d9b3ff, #ffb3e6);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: fx-chrome 5s linear infinite;
+}
+.fx-name.dia:is(.n-rainbow, .n-holo, .n-fire) {
+  background-image: linear-gradient(90deg, #ffffff, #9ff3ff, #c9b8ff, #ffffff, #9ff3ff);
+  filter: drop-shadow(0 0 6px rgba(159, 243, 255, 0.6));
+}
+.fx-name.dia.n-outline {
+  -webkit-text-stroke-color: #9ff3ff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fx-ring::before,
   .fx-ring::after,
