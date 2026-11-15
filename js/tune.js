@@ -19,7 +19,7 @@ const COLS = "id, handle, display_name, bio, avatar_path, banner_path, accent, c
 // ── Small helpers ──
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-export const pic = (p) => (p ? `${SUPABASE}/storage/v1/object/public/avatars/${p.split("/").map(encodeURIComponent).join("/")}` : null);
+export const pic = (p) => (p ? `${SUPABASE}/storage/v1/object/public/avatars/${p.split("/").map((x) => encodeURIComponent(x).replace(/'/g, "%27")).join("/")}` : null);
 export const initial = (s) => esc((s || "?").trim().charAt(0).toUpperCase());
 export const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -42,6 +42,14 @@ function flatten(row) {
 export function friendly(e) {
   const msg = e?.message ?? String(e);
   const m = msg.toLowerCase();
+  // Tune!'s own limits ("RATE:follow:42"): what's too fast, and how long to wait.
+  const rate = /RATE:([a-z_]+):(\d+)/.exec(msg);
+  if (rate) {
+    const secs = Number(rate[2]);
+    const wait = secs < 60 ? `${secs} second${secs === 1 ? "" : "s"}` : `${Math.ceil(secs / 60)} minutes`;
+    const what = { follow: "following people", follow_hour: "following people", report: "sending reports" }[rate[1]] ?? "doing that";
+    return `You're ${what} too fast. Try again in ${wait}.`;
+  }
   if (m.includes("invalid login credentials")) return "That email and password don't match.";
   if (m.includes("email not confirmed")) return "Confirm your email first with the code we sent you.";
   if (m.includes("token has expired") || m.includes("otp_expired") || m.includes("invalid or has expired")) return "That code has expired or isn't right. Send a new one and try again.";
