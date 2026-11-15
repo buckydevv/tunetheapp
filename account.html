@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-oVEA14+sP8QAhbGZoLEPYOG4p4ZVurgIIWfOgmAHJ/k='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://dhawbwlaiypaddpnjaav.supabase.co; connect-src 'self' https://dhawbwlaiypaddpnjaav.supabase.co wss://dhawbwlaiypaddpnjaav.supabase.co https://api.github.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <title>Your account · Tune!</title>
@@ -39,8 +40,8 @@
     </div>
 
     <script type="module">
-      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=4";
-      import { PARTS, LOCK, readFx, saveForm, earned, diamondUnlock, unlockText, ringHtml, bannerFxHtml, nameHtml, chipsHtml } from "/js/cosmetics.js?v=3";
+      import { api, whoami, refreshAccountButton, esc, pic, avatar, badge, handleProblem, squareAvatar, CAPTCHA_KEY, href, $ } from "/js/tune.js?v=5";
+      import { PARTS, LOCK, readFx, saveForm, earned, diamondUnlock, unlockText, ringHtml, bannerFxHtml, nameHtml, chipsHtml } from "/js/cosmetics.js?v=4";
 
       const out = $("#out");
       const COLOURS = ["#ff2e88", "#ff4d4d", "#ff8a3d", "#ffd23f", "#9dff3c", "#3dffa8", "#3fe3ff", "#3a64ff", "#a46bff", "#ff6ad5"];

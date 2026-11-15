@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-vNg6JF3dXAOIeesdAkCbAJtZ7PDIe3GNikkZtX9NpI8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://dhawbwlaiypaddpnjaav.supabase.co; connect-src 'self' https://dhawbwlaiypaddpnjaav.supabase.co wss://dhawbwlaiypaddpnjaav.supabase.co https://api.github.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tune! · play what you own</title>
     <meta name="description" content="Tune! is a free music player for Windows that makes your own music files feel brand new: word-by-word lyrics, a full-screen audio visualiser, and Listening Parties with friends." />
@@ -58,9 +59,9 @@
               <h3>Same song. <span style="--c: var(--pink)">Same second.</span></h3>
               <p>Start a Listening Party, send the six-letter code, and up to three friends hear exactly what you hear, down to the beat. They don't need your songs: Tune! shares them for the party and cleans up after.</p>
               <ul class="ticks">
-                <li>Chat and reactions while you listen</li>
+                <li>Chat with emoji, and fire reactions that burst across everyone's screen: build a combo and you never know what you'll get</li>
                 <li>Guess the Song: race your friends to name the clip, or to finish the next line in Finish the Lyric</li>
-                <li>Invite friends who are online in one click, or share the code</li>
+                <li>Invite friends who are online in one click, or share the code (the host decides whether guests can share it too)</li>
                 <li>Your friends see your party in their sidebar and can jump straight in</li>
                 <li>If the host leaves, the party passes to someone else and keeps going</li>
               </ul>
@@ -88,7 +89,7 @@
               <h3>Lyrics that <span style="--c: var(--cyan)">hit every word.</span></h3>
               <p>Tune! finds timed lyrics for your songs and lights them up word by word as they're sung. Pick from several sources per song, or time a song yourself in a few taps.</p>
               <ul class="ticks">
-                <li>Found automatically, even for old files</li>
+                <li>Found automatically, even for old files, and timed so every line and ad-lib lights up when it's sung</li>
                 <li>Right-click the lyrics to switch sources, or edit them in Tools</li>
                 <li>Search by lyrics: type a line you remember and play the song from there</li>
                 <li>Right-click a line to make a lyric card, as a picture or a video with the song, in four looks</li>
@@ -185,6 +186,6 @@
         })
         .catch(() => {});
     </script>
-    <script type="module" src="/js/tune.js?v=4"></script>
+    <script type="module" src="/js/tune.js?v=5"></script>
   </body>
 </html>

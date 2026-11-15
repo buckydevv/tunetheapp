@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-/ZSoRvfiIoW6y+d2FbfglIhnN38WK1jikGHbKBWRr2E=' 'sha256-FBpuhxAxzTMcUaP7sDWsuW9nlMAE5OKpmgbECeXd8iM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://dhawbwlaiypaddpnjaav.supabase.co; connect-src 'self' https://dhawbwlaiypaddpnjaav.supabase.co wss://dhawbwlaiypaddpnjaav.supabase.co https://api.github.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tune!</title>
     <meta property="og:title" content="Tune!" />
@@ -41,7 +42,7 @@
       const path = decodeURIComponent(location.pathname).replace(/\/+$/, "");
 
       const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-      const pic = (p) => (p ? `${SUPABASE}/storage/v1/object/public/avatars/${p.split("/").map(encodeURIComponent).join("/")}` : null);
+      const pic = (p) => (p ? `${SUPABASE}/storage/v1/object/public/avatars/${p.split("/").map((x) => encodeURIComponent(x).replace(/'/g, "%27")).join("/")}` : null);
       const initial = (s) => esc((s || "?").trim().charAt(0).toUpperCase());
       async function rpc(name, body) {
         const r = await fetch(`${SUPABASE}/rest/v1/rpc/${name}`, {
@@ -84,7 +85,7 @@
              <div class="avatar">${av ? `<img src="${av}" alt="">` : initial(host)}</div>
              <span class="pill-tag ${p.open ? "" : "off"}">${p.open ? "Listening Party" : "This party has ended"}</span>
              <h1>${esc(host)} invited you</h1>
-             <p class="handle">@${esc(p.host_handle)}${p.open ? ` · ${p.members} listening` : ""}</p>
+             <p class="handle">@${esc(p.host_handle)}${p.open ? ` · ${Number(p.members) || 0} listening` : ""}</p>
              <div class="code" aria-label="Party code">${esc(p.code)}</div>
              <div class="actions">
                ${p.open ? `<button class="btn" id="go">Join in Tune!</button>` : ""}
@@ -94,9 +95,9 @@
            </div></div>`,
           `Join ${host}'s party`,
         );
-        document.getElementById("go")?.addEventListener("click", () => openInApp(`tune://join/${p.code}`));
+        document.getElementById("go")?.addEventListener("click", () => openInApp(`tune://join/${encodeURIComponent(p.code)}`));
         // Straight into Tune! if it's installed (the browser may ask first); the button stays for a second try.
-        if (p.open) openInApp(`tune://join/${p.code}`);
+        if (p.open) openInApp(`tune://join/${encodeURIComponent(p.code)}`);
       }
 
       // Links to other profiles: only these sites, each in its exact shape (the database checks
@@ -135,7 +136,7 @@
         party: [ICON('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14.4a5.5 5.5 0 0 1 3 5.1"/>'), "Party"],
         creator: [ICON('<path d="M19.5 4.5 11 13"/><path d="M9.5 12.5c-2.2 0-3.5 1.5-3.5 3.4 0 1.5-.7 2.6-2.5 3.1 3.9 1.3 8.2.2 8.4-3.6z"/>'), "Creator"],
       };
-      const TIER_NAMES = ["Rising", "Encore", "Headliner", "Legend"];
+      const TIER_NAMES = ["Starter", "Pro", "Elite", "Icon"];
       const TIER_COLOURS = ["#d08a4c", "#cfd6e4", "#ffcf4a", "#9ff3ff"];
       function fxOf(u) {
         const c = u.cosmetics && typeof u.cosmetics === "object" ? u.cosmetics : {};
@@ -215,7 +216,7 @@
           u.streak > 0 ? `<span class="chip fire">${FLAME} ${Number(u.streak) || 0}</span>` : "",
           ...fx.badges.map((b) => `<span class="chip badge" style="--tc:${TIER_COLOURS[b.tier - 1]}">${BADGE_INFO[b.id][0]} ${TIER_NAMES[b.tier - 1]} ${BADGE_INFO[b.id][1]}</span>`),
         ].join("");
-        document.documentElement.style.setProperty("--accent", u.accent || "#ff2e88");
+        document.documentElement.style.setProperty("--accent", tint);
         show(
           `<div class="card">
              <div class="banner" style="--rc:${tint}${banner ? `;background-image:url('${banner}')` : ""}">${bannerFxHtml(fx.banner, fx.dia.banner)}</div>
@@ -226,8 +227,8 @@
                ${chips ? `<div class="chips">${chips}</div>` : ""}
                ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
                <div class="stats">
-                 <span><b id="followers">${u.followers}</b>followers</span>
-                 <span><b>${u.following}</b>following</span>
+                 <span><b id="followers">${Number(u.followers) || 0}</b>followers</span>
+                 <span><b>${Number(u.following) || 0}</b>following</span>
                  ${hours ? `<span><b>${hours}</b>hours this year</span>` : ""}
                </div>
                ${linksHtml(u.links)}
@@ -243,12 +244,12 @@
            </div>`,
           `${name} (@${u.handle})`,
         );
-        document.getElementById("go").addEventListener("click", () => openInApp(`tune://u/${u.handle}`));
+        document.getElementById("go").addEventListener("click", () => openInApp(`tune://u/${encodeURIComponent(u.handle)}`));
         // Signed in on the website: the module below adds a Follow button.
         window.tuneProfile = { handle: u.handle, followers: u.followers };
         dispatchEvent(new Event("tune:profile"));
         // Straight into the app, unless you came here from the website itself (searching people).
-        if (!document.referrer.startsWith(location.origin)) openInApp(`tune://u/${u.handle}`);
+        if (!document.referrer.startsWith(location.origin)) openInApp(`tune://u/${encodeURIComponent(u.handle)}`);
       }
 
       let m;
@@ -257,7 +258,7 @@
       else notFound("This page doesn't exist");
     </script>
     <script type="module">
-      import { api, whoami, href } from "/js/tune.js?v=4";
+      import { api, whoami, href } from "/js/tune.js?v=5";
 
       // Follow and unfollow from a profile page, when you're signed in on the website.
       async function addFollow() {
